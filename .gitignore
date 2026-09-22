@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Generated and rewritten by `expo start`. Anything hand-written in here is
+# deleted, so project-level declarations live in src/globals.d.ts instead.
+expo-env.d.ts
+
+# Generated native projects — the managed workflow keeps config in app.json
+android/
+ios/
+
+# Secrets and signing material
+.env
+.env.local
+*.keystore
+*.jks
+credentials.json
+credentials/
+play-service-account.json
+
+# Local scratch
+artifacts/
+*.log
+.DS_Store
+Thumbs.db
