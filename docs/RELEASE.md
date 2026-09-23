@@ -7,6 +7,7 @@ pnpm install
 pnpm run icons        # regenerate icons from the pixel mark
 pnpm run verify       # types and rules
 pnpm start            # Expo Go or a development build
+pnpm web              # desktop browser preview (see the note below)
 ```
 
 Agon targets iOS and Android from one codebase, with local storage, local
@@ -42,6 +43,12 @@ behave.
   an integer scale. A production sprite sheet can replace the renderer without
   touching the rules: the interface asks `buildCharacter` for a grid and does
   not care where the pixels come from.
+- **Browser preview.** `pnpm web` runs the app in a desktop browser, which is
+  useful when a phone is not at hand. Two things differ there, deliberately:
+  the local database falls back to browser storage (`src/data/db.web.ts`, same
+  all-or-nothing behaviour, no SQLite), and reminders are disabled because a
+  browser tab has no schedule to keep. The handoff defers a browser release, so
+  this is a preview rather than a supported deployment.
 - **Animation.** Moods are static poses. The handoff's suggested loops (idle,
   sleepy, stretch, celebrate, radiant) are not implemented.
 - **Cross-platform purchase.** The single-purchase commitment is a product

@@ -36,6 +36,7 @@ async function ensureChannel(): Promise<void> {
 }
 
 export async function requestPermission(): Promise<boolean> {
+  if (Platform.OS === 'web') return false;
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) return true;
   if (!current.canAskAgain) return false;
@@ -57,6 +58,7 @@ export function plannedWeekdays(plan: PlanSlot[]): number[] {
 }
 
 export async function cancelReminders(): Promise<void> {
+  if (Platform.OS === 'web') return;
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
@@ -72,6 +74,8 @@ export async function scheduleReminders(params: {
 }): Promise<{ scheduled: number }> {
   await cancelReminders();
   const { preferences, plan } = params;
+  // Reminders are an on-device feature; a browser tab has no schedule to keep.
+  if (Platform.OS === 'web') return { scheduled: 0 };
   if (!preferences.reminders.enabled) return { scheduled: 0 };
 
   const permission = await requestPermission();
@@ -102,6 +106,7 @@ export async function scheduleReminders(params: {
 }
 
 export async function scheduledCount(): Promise<number> {
+  if (Platform.OS === 'web') return 0;
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   return scheduled.length;
 }

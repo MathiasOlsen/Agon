@@ -38,6 +38,7 @@ pnpm run icons        # regenerate the app icons from the pixel mark
 pnpm run typecheck    # types across app, core and data layers
 pnpm test             # logic tests for the rules in the handoff
 pnpm start            # run in Expo Go or a development build
+pnpm web              # desktop browser preview
 ```
 
 `pnpm run verify` runs the type check and the tests together.
