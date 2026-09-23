@@ -372,7 +372,6 @@ export const en = {
   'session.lastSession': 'Last session: {value}',
   'session.noExercises': 'This session has no exercises yet.',
   'session.resumed': 'Picked up where you left off.',
-  'session.shortened': 'Shorten this session',
   'session.finishEarly': 'Finish early',
   'session.strict': 'Every set has to be ticked for the session to count.',
   'session.instead': 'Instead: {name}',

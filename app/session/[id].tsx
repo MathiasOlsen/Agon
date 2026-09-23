@@ -463,58 +463,52 @@ export default function SessionScreen() {
           </Text>
         )}
 
-        {showShorten ? (
-        <Card>
-          <CardHeader title={t('session.shortenedConfirm')} subtitle={t('session.shortenedBody')} />
-          <Stepper
-            label={t('session.minutes')}
-            value={shortenMinutes}
-            step={5}
-            min={5}
-            max={120}
-            onChange={setShortenMinutes}
-          />
-          <Text variant="caption" tone="muted">
-            {t('session.minutesHint')}
-          </Text>
-          {shortenMinutes < MIN_MINUTES_FOR_SESSION ? (
-            <Text variant="caption">{t('session.minutesFloor')}</Text>
-          ) : null}
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <Button label={t('common.cancel')} variant="secondary" onPress={() => setShowShorten(false)} />
-            <Button
-              label={`${t('session.record')} ${t('unit.minutes', { count: shortenMinutes })}`}
-              onPress={() => {
-                if (session.scheduledSessionId) {
-                  store.shortenSession(
-                    session.scheduledSessionId,
-                    shortenMinutes,
-                    new Date().toISOString(),
-                  );
-                }
-                store.completeWorkout(session.id, new Date().toISOString());
-                setShowShorten(false);
-              }}
-            />
-          </View>
-        </Card>
-        ) : allSetsDone ? null : (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('session.shortened')}
-            onPress={openShorten}
-        >
-          <Text variant="label" tone="primary">
-            {t('session.shortened')}
-          </Text>
-        </Pressable>
-      )}
-
+        {/* One way to end early. The control and its dialog are the same thing,
+            so there is never both a link and a button offering the same action. */}
         {allSetsDone ? (
           <Button
             label={t('session.finish')}
             onPress={() => store.completeWorkout(session.id, new Date().toISOString())}
           />
+        ) : showShorten ? (
+          <Card>
+            <CardHeader title={t('session.shortenedConfirm')} subtitle={t('session.shortenedBody')} />
+            <Stepper
+              label={t('session.minutes')}
+              value={shortenMinutes}
+              step={5}
+              min={5}
+              max={120}
+              onChange={setShortenMinutes}
+            />
+            <Text variant="caption" tone="muted">
+              {t('session.minutesHint')}
+            </Text>
+            {shortenMinutes < MIN_MINUTES_FOR_SESSION ? (
+              <Text variant="caption">{t('session.minutesFloor')}</Text>
+            ) : null}
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <Button
+                label={t('common.cancel')}
+                variant="secondary"
+                onPress={() => setShowShorten(false)}
+              />
+              <Button
+                label={`${t('session.record')} ${t('unit.minutes', { count: shortenMinutes })}`}
+                onPress={() => {
+                  if (session.scheduledSessionId) {
+                    store.shortenSession(
+                      session.scheduledSessionId,
+                      shortenMinutes,
+                      new Date().toISOString(),
+                    );
+                  }
+                  store.completeWorkout(session.id, new Date().toISOString());
+                  setShowShorten(false);
+                }}
+              />
+            </View>
+          </Card>
         ) : (
           <Button
             label={t('session.finishEarly')}

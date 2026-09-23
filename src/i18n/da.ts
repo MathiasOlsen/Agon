@@ -360,7 +360,6 @@ export const da: Record<TranslationKey, string> = {
   'session.lastSession': 'Sidste gang: {value}',
   'session.noExercises': 'Denne træning har endnu ingen øvelser.',
   'session.resumed': 'Fortsatte, hvor du sluttede.',
-  'session.shortened': 'Forkort denne træning',
   'session.finishEarly': 'Afslut tidligt',
   'session.strict': 'Alle sæt skal krydses af, før træningen tæller.',
   'session.instead': 'I stedet: {name}',
