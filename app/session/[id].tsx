@@ -446,13 +446,14 @@ export default function SessionScreen() {
             {t(exerciseById(nextSet.exercise.exerciseId)?.nameKey as 'exercise.goblet_squat')}
           </Text>
           <Text variant="caption" tone="muted">
-            {nextSet.exercise.durationSec !== null
-              ? `${t('unit.sets', { count: nextSet.exercise.sets })} × ${t('unit.seconds', {
-                  count: nextSet.exercise.durationSec,
-                })}`
-              : `${t('unit.sets', { count: nextSet.exercise.sets })} × ${t('unit.reps', {
-                  count: nextSet.exercise.reps ?? 0,
-                })}`}
+            {`${t('session.setOf', {
+              current: nextSet.setIndex + 1,
+              total: nextSet.exercise.sets,
+            })} · ${
+              nextSet.exercise.durationSec !== null
+                ? t('unit.seconds', { count: nextSet.exercise.durationSec })
+                : t('unit.reps', { count: nextSet.exercise.reps ?? 0 })
+            }`}
           </Text>
         </Card>
       ) : null}

@@ -369,6 +369,7 @@ export const en = {
   'session.skipRest': 'Skip rest',
   'session.finish': 'Finish workout',
   'session.upNext': 'Up next',
+  'session.setOf': 'Set {current} of {total}',
   'session.lastSession': 'Last session: {value}',
   'session.noExercises': 'This session has no exercises yet.',
   'session.resumed': 'Picked up where you left off.',
