@@ -193,24 +193,18 @@ export default function SessionScreen() {
     setRestHeld(null);
   };
 
-  // A rest is something the person starts, between sets, when they are ready
-  // for it. So the card sits with the exercise they are on rather than at the
-  // bottom of the page, and nothing counts down until they say so.
-  const restCard = (
-    <Card>
-      <CardHeader
-        title={t('session.rest')}
-        subtitle={
-          restState === 'running'
-            ? t('session.restRunning')
-            : restState === 'paused'
-              ? t('session.restPaused')
-              : t('session.restNotRunning')
-        }
-      />
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <PixelIcon name="clock" size={18} color={tokens.textMuted} />
-        <Text variant="title" tabular>
+  const restStrip = (
+    <View
+      style={{
+        gap: 8,
+        paddingTop: 10,
+        borderTopWidth: PIXEL.edgeThin,
+        borderTopColor: tokens.progressTrack,
+      }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <PixelIcon name="clock" size={16} color={tokens.textMuted} />
+        <Text variant="label" tabular tone={restState === 'idle' ? 'muted' : 'primary'}>
           {formatDuration(
             restState === 'running'
               ? restRemaining
@@ -219,8 +213,15 @@ export default function SessionScreen() {
                 : REST_SECONDS,
           )}
         </Text>
+        <Text variant="caption" tone="muted" style={{ flex: 1 }}>
+          {restState === 'running'
+            ? t('session.restRunning')
+            : restState === 'paused'
+              ? t('session.restPaused')
+              : t('session.restBetweenSets')}
+        </Text>
       </View>
-      <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap' }}>
+      <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
         {restState === 'idle' ? (
           <Button label={t('session.startRest')} variant="secondary" onPress={startRest} />
         ) : (
@@ -235,12 +236,7 @@ export default function SessionScreen() {
           </>
         )}
       </View>
-      {restState === 'idle' ? (
-        <Text variant="caption" tone="muted">
-          {t('session.restHint')}
-        </Text>
-      ) : null}
-    </Card>
+    </View>
   );
 
   const nextSet = session.exercises
@@ -260,6 +256,23 @@ export default function SessionScreen() {
             log.completed,
         ),
     );
+
+  // The rest belongs under the set the person just ticked: that is where they
+  // are looking, and a rest between sets is only meaningful next to the set it
+  // follows. Before anything is ticked it waits under the set they are about to
+  // do, so it is never missing from the page.
+  const lastCompletedSet = setLogs.reduce<SetLog | undefined>(
+    (latest, log) =>
+      log.completed && (latest === undefined || log.recordedAt > latest.recordedAt)
+        ? log
+        : latest,
+    undefined,
+  );
+  const restAnchor = lastCompletedSet
+    ? { exerciseId: lastCompletedSet.exerciseId, setIndex: lastCompletedSet.setIndex }
+    : nextSet
+      ? { exerciseId: nextSet.exercise.exerciseId, setIndex: nextSet.setIndex }
+      : null;
 
   return (
     <Screen>
@@ -348,8 +361,7 @@ export default function SessionScreen() {
               : null;
             const hint = exerciseById(exercise.exerciseId)?.hintKey;
             return (
-            <Fragment key={`${exercise.exerciseId}-${exerciseIndex}`}>
-            <Card>
+            <Card key={`${exercise.exerciseId}-${exerciseIndex}`}>
               <CardHeader
                 title={name}
                 subtitle={
@@ -381,8 +393,8 @@ export default function SessionScreen() {
                     candidate.exerciseId === exercise.exerciseId && candidate.setIndex === setIndex,
                 );
                 return (
+                  <Fragment key={setIndex}>
                   <SetRow
-                    key={setIndex}
                     index={setIndex}
                     log={log}
                     defaultAmount={amount.value ?? 0}
@@ -406,11 +418,13 @@ export default function SessionScreen() {
                     );
                   }}
                   />
+                  {restAnchor?.exerciseId === exercise.exerciseId && restAnchor.setIndex === setIndex
+                    ? restStrip
+                    : null}
+                  </Fragment>
                 );
               })}
             </Card>
-            {exerciseIndex === nextSet?.exerciseIndex ? restCard : null}
-            </Fragment>
             );
           })
       )}
