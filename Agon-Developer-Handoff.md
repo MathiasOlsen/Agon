@@ -1,6 +1,6 @@
 # Agon — developer handoff
 
-Version 1.4 · 23 September 2026 · Product and visual specification
+Version 1.5 · 23 September 2026 · Product and visual specification
 
 This is a proposed implementation brief, not a completed application. User requirements are distinguished from suggested implementation defaults. Exact tokens and behavior below take precedence over illustrative reference images.
 
@@ -355,7 +355,7 @@ Monday's session advances its daily quest, weekly scheduled-session count, month
 
 ### Workout logging requirements
 
-- Strength: saved exercises, sets, reps, load, load unit, completion flags, previous comparable values, optional effort/notes and rest timer. Support bodyweight movements without inventing a load.
+- Strength: saved exercises, sets, reps, load, load unit, completion flags, previous comparable values, optional effort/notes and a rest timer the person starts and stops themselves. Nothing counts down on its own; a rest that runs out clears itself rather than sitting at zero. The control belongs with the exercise in progress, not at the foot of the page, because a rest is taken between sets. Support bodyweight movements without inventing a load.
 - Cardio: modality, duration, optional distance and perceived effort. Do not require GPS, device sensors, calories or heart-rate data.
 - Save completed sets and draft edits promptly and transactionally. Resume interrupted workouts after process termination, reboot or network loss. Derive elapsed timers from persisted timestamps; do not rely solely on a background ticking counter.
 - Offer Start, Shorten, Reschedule and Recovery actions. Preview how changes affect the current instance and linked goals. Keep revision history locally; do not leave misleading overdue tasks after a valid reschedule.
@@ -433,3 +433,9 @@ Aligned section 12 with the two AGON concept boards supplied with this revision,
 ### Version 1.4 change record
 
 Restructured the quests by size so each period asks a question a person can answer. Dailies are now micro-quests — push-ups, sit-ups, squats, a plank, a walk, a stretch — that need no equipment and no planning, rewarded 50 XP with the existing two-a-day cap; the planned session stays the day's 200 XP main action. Weeklies are bundles: a named set of components with sets, reps, load and tool, completed set by set, strictly, with the bundle for the plan's dominant modality as the main weekly goal. Added the bundle model to section 4, replaced the quest catalogue in section 14, and specified four starter bundles: Strength Workout A, Strength Workout B, Legs and Core, and Cardio Workout. Added the starter content review and its limits, and confirmed that people may write and run their own sessions, which complete the day's plan entry exactly like a prescribed bundle. Added reps and seconds as units, and replaced the quest-detail add-progress control with a read-only progress view listing what is done, missed and still to come. A period with nothing scheduled in it creates no quest, and days before the plan started are never counted as missed.
+
+### Version 1.5 change record
+
+Decided that the interface is drawn on the same grid as the sprites. Cards, chips, buttons, inputs and day cells are square, edges are a visible two logical pixels, progress is a row of blocks rather than a smooth fill, and a raised surface casts a hard offset shadow with no blur. The four themes keep their own colour and their own decoration — rails, stepping, ticket notches — but none of them is softly rounded any more, because a soft corner is the one shape the artwork never uses. A selected or focused control keeps a size change as well as a colour change, so a state never rests on colour alone. This supersedes the "softly rounded cards" and "smooth bars" wording in the quest treatments of section 7.
+
+Made the workout rest timer something the person starts. Previously a rest began by itself whenever a set was ticked, which meant a countdown could be running while the person was still setting up, and the old Pause and Skip controls did the same thing. Now ticking a set does not start anything: the rest card sits with the exercise in progress, offers Start rest, and once running shows Pause, +15 sec and Skip rest. The countdown clears itself when it reaches zero instead of sitting at 00:00 behind a Pause button. Cardio sessions, which have no sets, show no rest card.

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
@@ -36,6 +36,7 @@ export default function SessionScreen() {
   const session = state.workoutSessions.find((candidate) => candidate.id === id);
   const { tokens } = theme;
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
+  const [restHeld, setRestHeld] = useState<number | null>(null);
   const [showShorten, setShowShorten] = useState(false);
   const [shortenMinutes, setShortenMinutes] = useState(15);
   const [cardioMinutes, setCardioMinutes] = useState(30);
@@ -49,6 +50,19 @@ export default function SessionScreen() {
     const timer = setInterval(() => setTick((value) => value + 1), 1_000);
     return () => clearInterval(timer);
   }, []);
+
+  // A rest that has run out clears itself, so the card never sits at 00:00
+  // pretending something is still counting down.
+  useEffect(() => {
+    if (restEndsAt === null) return;
+    const remainingMs = restEndsAt - Date.now();
+    if (remainingMs <= 0) {
+      setRestEndsAt(null);
+      return;
+    }
+    const timeout = setTimeout(() => setRestEndsAt(null), remainingMs);
+    return () => clearTimeout(timeout);
+  }, [restEndsAt]);
 
   const celebration = usePendingCelebration(now);
   const counters = usePeriodCounters(now);
@@ -153,6 +167,81 @@ export default function SessionScreen() {
 
   const elapsedSeconds = Math.max(0, Math.round((Date.parse(now) - Date.parse(session.startedAt)) / 1000));
   const restRemaining = restEndsAt ? Math.max(0, Math.round((restEndsAt - Date.now()) / 1000)) : 0;
+  const restState: 'idle' | 'running' | 'paused' =
+    restEndsAt !== null ? 'running' : restHeld !== null && restHeld > 0 ? 'paused' : 'idle';
+
+  const startRest = () => {
+    setRestHeld(null);
+    setRestEndsAt(Date.now() + REST_SECONDS * 1_000);
+  };
+  const holdRest = () => {
+    if (restEndsAt !== null) {
+      // Round up, so holding the rest never quietly takes a second away.
+      setRestHeld(Math.max(0, Math.ceil((restEndsAt - Date.now()) / 1_000)));
+      setRestEndsAt(null);
+    } else if (restHeld !== null) {
+      setRestEndsAt(Date.now() + restHeld * 1_000);
+      setRestHeld(null);
+    }
+  };
+  const addRestTime = () => {
+    if (restEndsAt !== null) setRestEndsAt(restEndsAt + 15_000);
+    else setRestHeld((current) => (current ?? 0) + 15);
+  };
+  const stopRest = () => {
+    setRestEndsAt(null);
+    setRestHeld(null);
+  };
+
+  // A rest is something the person starts, between sets, when they are ready
+  // for it. So the card sits with the exercise they are on rather than at the
+  // bottom of the page, and nothing counts down until they say so.
+  const restCard = (
+    <Card>
+      <CardHeader
+        title={t('session.rest')}
+        subtitle={
+          restState === 'running'
+            ? t('session.restRunning')
+            : restState === 'paused'
+              ? t('session.restPaused')
+              : t('session.restNotRunning')
+        }
+      />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <PixelIcon name="clock" size={18} color={tokens.textMuted} />
+        <Text variant="title" tabular>
+          {formatDuration(
+            restState === 'running'
+              ? restRemaining
+              : restState === 'paused'
+                ? (restHeld ?? 0)
+                : REST_SECONDS,
+          )}
+        </Text>
+      </View>
+      <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap' }}>
+        {restState === 'idle' ? (
+          <Button label={t('session.startRest')} variant="secondary" onPress={startRest} />
+        ) : (
+          <>
+            <Button
+              label={restState === 'running' ? t('session.pause') : t('session.resume')}
+              variant="secondary"
+              onPress={holdRest}
+            />
+            <Button label={t('session.addTime')} variant="secondary" onPress={addRestTime} />
+            <Button label={t('session.skipRest')} variant="ghost" onPress={stopRest} />
+          </>
+        )}
+      </View>
+      {restState === 'idle' ? (
+        <Text variant="caption" tone="muted">
+          {t('session.restHint')}
+        </Text>
+      ) : null}
+    </Card>
+  );
 
   const nextSet = session.exercises
     .flatMap((exercise, exerciseIndex) =>
@@ -259,7 +348,8 @@ export default function SessionScreen() {
               : null;
             const hint = exerciseById(exercise.exerciseId)?.hintKey;
             return (
-            <Card key={`${exercise.exerciseId}-${exerciseIndex}`}>
+            <Fragment key={`${exercise.exerciseId}-${exerciseIndex}`}>
+            <Card>
               <CardHeader
                 title={name}
                 subtitle={
@@ -314,38 +404,16 @@ export default function SessionScreen() {
                       },
                       new Date().toISOString(),
                     );
-                    if (completed) setRestEndsAt(Date.now() + REST_SECONDS * 1_000);
                   }}
                   />
                 );
               })}
             </Card>
+            {exerciseIndex === nextSet?.exerciseIndex ? restCard : null}
+            </Fragment>
             );
           })
       )}
-
-      <Card>
-        <CardHeader title={t('session.rest')} />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <PixelIcon name="clock" size={18} color={tokens.textMuted} />
-          <Text variant="title" tabular>
-            {formatDuration(restRemaining)}
-          </Text>
-        </View>
-        <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap' }}>
-          <Button
-            label={restEndsAt ? t('session.pause') : t('session.rest')}
-            variant="secondary"
-            onPress={() => setRestEndsAt(restEndsAt ? null : Date.now() + REST_SECONDS * 1_000)}
-          />
-          <Button
-            label={t('session.addTime')}
-            variant="secondary"
-            onPress={() => setRestEndsAt((current) => (current ?? Date.now()) + 15_000)}
-          />
-          <Button label={t('session.skipRest')} variant="ghost" onPress={() => setRestEndsAt(null)} />
-        </View>
-      </Card>
 
       {nextSet ? (
         <Card>
