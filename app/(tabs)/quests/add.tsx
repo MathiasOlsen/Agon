@@ -5,10 +5,11 @@ import { View } from 'react-native';
 import { CATALOGUE, type CatalogueEntry } from '@/core/catalogue';
 import { isDefaultTemplateEnabled } from '@/core/engine';
 import { rewardForQuest } from '@/core/rewards';
+import type { Measurement } from '@/core/types';
 import { useApp } from '@/state/app-provider';
 import { Button } from '@/ui/button';
 import { Card, CardHeader } from '@/ui/card';
-import { Stepper, ToggleRow } from '@/ui/controls';
+import { SegmentedControl, Stepper, ToggleRow } from '@/ui/controls';
 import { Screen } from '@/ui/screen';
 import { Text } from '@/ui/text';
 
@@ -23,12 +24,26 @@ export default function AddQuest() {
   const router = useRouter();
   const now = new Date().toISOString();
   const [targets, setTargets] = useState<Record<string, number>>({});
+  const [measures, setMeasures] = useState<Record<string, Measurement>>({});
 
   const editable = CATALOGUE.filter(
     (entry) => entry.defaultTarget === null || entry.kind === 'supporting',
   );
 
   const targetFor = (entry: CatalogueEntry) => targets[entry.key] ?? entry.defaultTarget ?? 1;
+
+  const measureFor = (entry: CatalogueEntry) => measures[entry.key] ?? entry.measure;
+
+  /** Goals that offer a choice of unit, with a sensible target for each. */
+  const measureChoicesFor = (
+    entry: CatalogueEntry,
+  ): Array<{ measure: Measurement; target: number; label: string }> => {
+    if (entry.key !== 'keep_moving') return [];
+    return [
+      { measure: 'steps', target: 6_000, label: t('quests.bySteps') },
+      { measure: 'minutes', target: 60, label: t('quests.byMinutes') },
+    ];
+  };
 
   return (
     <Screen>
@@ -42,6 +57,7 @@ export default function AddQuest() {
           entry.key === 'keep_moving' ||
           entry.key === 'build_your_engine' ||
           entry.key === 'a_year_of_movement';
+        const choices = measureChoicesFor(entry);
         return (
           <Card key={entry.key}>
             <CardHeader
@@ -61,21 +77,49 @@ export default function AddQuest() {
             />
             {needsTarget ? (
               <View style={{ gap: 6 }}>
+                {choices.length > 0 ? (
+                  <>
+                    <Text variant="label">{t('quests.chooseMeasure')}</Text>
+                    <SegmentedControl
+                      label={t('quests.chooseMeasure')}
+                      value={measureFor(entry)}
+                      onChange={(measure) => {
+                        const chosen = choices.find((choice) => choice.measure === measure);
+                        setMeasures((current) => ({ ...current, [entry.key]: measure }));
+                        if (chosen) {
+                          setTargets((current) => ({ ...current, [entry.key]: chosen.target }));
+                          if (enabled) {
+                            store.enableCatalogue(
+                              entry.key,
+                              true,
+                              chosen.target,
+                              now,
+                              chosen.measure,
+                            );
+                          }
+                        }
+                      }}
+                      options={choices.map((choice) => ({
+                        value: choice.measure,
+                        label: choice.label,
+                      }))}
+                    />
+                  </>
+                ) : null}
                 <Text variant="label">{t('quests.chooseTarget')}</Text>
                 <Stepper
                   label={t('quests.chooseTarget')}
                   value={targetFor(entry)}
-                  step={entry.measure === 'steps' ? 1_000 : 10}
-                  min={entry.measure === 'steps' ? 1_000 : 1}
-                  max={entry.measure === 'steps' ? 30_000 : 500}
+                  step={measureFor(entry) === 'steps' ? 1_000 : 10}
+                  min={measureFor(entry) === 'steps' ? 1_000 : 1}
+                  max={measureFor(entry) === 'steps' ? 30_000 : 500}
                   onChange={(value) => {
                     setTargets((current) => ({ ...current, [entry.key]: value }));
-                    if (enabled) store.enableCatalogue(entry.key, true, value, now);
+                    if (enabled) {
+                      store.enableCatalogue(entry.key, true, value, now, measureFor(entry));
+                    }
                   }}
                 />
-                <Text variant="caption" tone="muted">
-                  {t('quests.chooseMeasure')}
-                </Text>
               </View>
             ) : null}
           </Card>

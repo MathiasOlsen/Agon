@@ -210,6 +210,8 @@ export const da: Record<TranslationKey, string> = {
   'quests.thatCounts': 'Hvad tæller',
   'quests.chooseTarget': 'Mål',
   'quests.chooseMeasure': 'Mål fremgang i',
+  'quests.bySteps': 'Skridt',
+  'quests.byMinutes': 'Minutter',
   'quests.activeSwitches': 'Aktive quests',
   'quests.supportingCap': 'Op til to støttende quests belønnes hver dag.',
   'quests.plannedBySession':
@@ -400,7 +402,7 @@ export const da: Record<TranslationKey, string> = {
   'data.readableExportHint':
     'En ukrypteret fil til flytning mellem værktøjer. Alle, der åbner den, kan læse den.',
   'data.readableExportConfirm': 'Opret den ukrypterede fil alligevel?',
-  'data.restorePreview': 'Klar til at gendanne',
+  'data.restorePreview': 'Vis sikkerhedskopi',
   'data.restoreFrom': 'Sikkerhedskopi fra {date}',
   'data.restoreCounts': '{quests} quests, {events} loggede aktiviteter, {xp} XP',
   'data.restoreWarning':
@@ -428,6 +430,8 @@ export const da: Record<TranslationKey, string> = {
   'reminders.genericHint': 'Intet om dine mål eller din krop vises på låseskærmen.',
   'reminders.denied': 'Notifikationer er slået fra for Agon i systemindstillingerne.',
   'reminders.saved': 'Påmindelser opdateret.',
+  'reminders.on': 'Til kl. {time}',
+  'reminders.off': 'Fra',
   'reminders.body': 'Et venligt vink, dannet på denne enhed. Sendes aldrig nogen steder hen.',
 
   'privacy.title': 'Privatliv',

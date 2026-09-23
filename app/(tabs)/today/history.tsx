@@ -9,7 +9,7 @@ import { Card } from '@/ui/card';
 import { SegmentedControl, Stepper } from '@/ui/controls';
 import { EmptyState, Screen } from '@/ui/screen';
 import { Text } from '@/ui/text';
-import { unitNameKey } from '@/ui/units';
+import { unitLabelKey } from '@/ui/units';
 
 /**
  * History is where a record can be corrected. A correction updates the affected
@@ -61,9 +61,8 @@ export default function HistoryScreen() {
                 {formatLocalDate(event.localDate, state.preferences.locale)} ·{' '}
                 {formatLocalTimeOfDay(event.occurredAt, state.preferences.timeZone, state.preferences.locale)}
               </Text>
-              <Text variant="caption" tone="muted">
-                {t('unit.of', { done: event.quantity, target: event.quantity })}{' '}
-                {t(unitNameKey(event.measure))}
+              <Text variant="caption" tone="muted" tabular>
+                {t(unitLabelKey(event.measure), { count: event.quantity })}
               </Text>
             </View>
 

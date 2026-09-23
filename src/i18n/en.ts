@@ -221,6 +221,8 @@ export const en = {
   'quests.thatCounts': 'What counts',
   'quests.chooseTarget': 'Target',
   'quests.chooseMeasure': 'Measure progress in',
+  'quests.bySteps': 'Steps',
+  'quests.byMinutes': 'Minutes',
   'quests.activeSwitches': 'Active quests',
   'quests.supportingCap': 'Up to two supporting quests are rewarded each day.',
   'quests.plannedBySession':
@@ -414,7 +416,7 @@ export const en = {
   'data.readableExport': 'Create readable export',
   'data.readableExportHint': 'An unencrypted file for portability. Anyone who opens it can read it.',
   'data.readableExportConfirm': 'Create the unencrypted file anyway?',
-  'data.restorePreview': 'About to restore',
+  'data.restorePreview': 'Preview backup',
   'data.restoreFrom': 'Backup from {date}',
   'data.restoreCounts': '{quests} quests, {events} logged activities, {xp} XP',
   'data.restoreWarning':
@@ -443,6 +445,8 @@ export const en = {
   'reminders.genericHint': 'Nothing about your goals or body appears on the lock screen.',
   'reminders.denied': 'Notifications are turned off for Agon in system settings.',
   'reminders.saved': 'Reminders updated.',
+  'reminders.on': 'On at {time}',
+  'reminders.off': 'Off',
   'reminders.body': 'A gentle nudge, generated on this device. Never sent anywhere.',
 
   // Privacy

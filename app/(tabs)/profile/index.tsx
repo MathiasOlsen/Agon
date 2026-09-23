@@ -64,7 +64,13 @@ export default function ProfileScreen() {
           icon="bell"
           title={t('profile.reminders')}
           subtitle={
-            preferences.reminders.enabled ? t('reminders.enable') : t('reminders.body')
+            preferences.reminders.enabled
+              ? t('reminders.on', {
+                  time: `${String(preferences.reminders.hour).padStart(2, '0')}:${String(
+                    preferences.reminders.minute,
+                  ).padStart(2, '0')}`,
+                })
+              : t('reminders.off')
           }
           onPress={() => router.push('/(tabs)/profile/reminders')}
         />

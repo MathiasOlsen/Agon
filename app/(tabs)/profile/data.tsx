@@ -40,6 +40,9 @@ export default function DataScreen() {
   const { store, state, t } = useApp();
   const [passphrase, setPassphrase] = useState('');
   const [confirmation, setConfirmation] = useState('');
+  // Kept apart from the export passphrase: opening a file someone else wrote
+  // has nothing to do with the passphrase you choose for your own backup.
+  const [restorePassphrase, setRestorePassphrase] = useState('');
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -135,7 +138,7 @@ export default function DataScreen() {
     if (!chosen) return;
     setError(null);
     try {
-      const { payload } = decryptBackup(chosen, passphrase);
+      const { payload } = decryptBackup(chosen, restorePassphrase);
       setOpened({ payload, preview: previewRestore(payload) });
     } catch (thrown) {
       setError(messageFor(thrown));
@@ -261,14 +264,14 @@ export default function DataScreen() {
             <Button label={t('data.import')} variant="secondary" onPress={() => void chooseFile()} />
             <Field
               label={t('data.passphrase')}
-              value={passphrase}
-              onChangeText={setPassphrase}
+              value={restorePassphrase}
+              onChangeText={setRestorePassphrase}
               secureTextEntry
               autoCapitalize="none"
             />
             <Button
               label={t('data.restorePreview')}
-              disabled={!chosen || passphrase.length === 0}
+              disabled={!chosen || restorePassphrase.length === 0}
               onPress={openBackup}
             />
           </>

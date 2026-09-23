@@ -849,24 +849,33 @@ export function enableCatalogueEntry(
   enabled: boolean,
   target: number | null,
   now: IsoInstant,
+  measure?: Measurement,
 ): RecomputeResult {
   const entry = findCatalogueEntry(catalogueKey);
   if (!entry) return recompute(state, now);
   const id = templateIdFor(catalogueKey);
   const existing = state.questTemplates.find((template) => template.id === id);
+  // A goal that can be measured two ways (steps or minutes, for instance) keeps
+  // whichever way the person chose, so nothing is converted behind their back.
+  const nextMeasure = measure ?? existing?.measure ?? entry.measure;
   const template: QuestTemplate = existing
     ? {
         ...existing,
         active: enabled,
+        measure: nextMeasure,
         target: target ?? existing.target,
-        revision: existing.revision + (target !== null && target !== existing.target ? 1 : 0),
+        revision:
+          existing.revision +
+          ((target !== null && target !== existing.target) || nextMeasure !== existing.measure
+            ? 1
+            : 0),
       }
     : {
         id,
         catalogueKey: entry.key,
         periodKind: entry.periodKind,
         kind: entry.kind,
-        measure: entry.measure,
+        measure: nextMeasure,
         target: target ?? entry.defaultTarget ?? 1,
         xp: entry.kind === 'supporting' ? REWARD_TABLE.supportingDaily : REWARD_TABLE[entry.periodKind],
         activityKinds: entry.activityKinds,

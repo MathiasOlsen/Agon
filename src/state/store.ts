@@ -24,6 +24,7 @@ import type {
   ActivityEvent,
   AgonState,
   CardioLog,
+  Measurement,
   Modality,
   Mood,
   Mutation,
@@ -160,8 +161,16 @@ export class AgonStore {
     return this.mutate((state) => applyPreferences(state, patch, now));
   }
 
-  enableCatalogue(catalogueKey: string, enabled: boolean, target: number | null, now: string): MutationOutcome {
-    return this.mutate((state) => enableCatalogueEntry(state, catalogueKey, enabled, target, now));
+  enableCatalogue(
+    catalogueKey: string,
+    enabled: boolean,
+    target: number | null,
+    now: string,
+    measure?: Measurement,
+  ): MutationOutcome {
+    return this.mutate((state) =>
+      enableCatalogueEntry(state, catalogueKey, enabled, target, now, measure),
+    );
   }
 
   setPlanSlotsDirect(slots: PlanSlot[], now: string): void {
