@@ -18,6 +18,7 @@ ios/
 # Secrets and signing material
 .env
 .env.local
+secrets/
 *.keystore
 *.jks
 credentials.json

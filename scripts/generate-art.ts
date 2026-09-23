@@ -3,7 +3,7 @@
  *
  * Agon ships with original pixel art generated from code, so this script is not
  * needed to build or run the app. It exists for producing concept artwork with
- * fal.ai using the key in `.env.local`, and it documents the two steps the
+ * fal.ai using the key in `secrets/fal.env`, and it documents the two steps the
  * project uses: generate a picture, then cut its background out.
  *
  *   Generation:  fal-ai/nano-banana-2   or the gpt-image model on fal.ai
@@ -13,7 +13,7 @@
  * git-ignored: concept images are references, never shipped assets.
  */
 
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,14 +23,24 @@ const OUTPUT = join(ROOT, 'artifacts');
 const GENERATE_ENDPOINT = 'https://fal.run/fal-ai/nano-banana-2';
 const CUTOUT_ENDPOINT = 'https://fal.run/fal-ai/ideogram/remove-background';
 
+/**
+ * The key deliberately lives outside `.env.local`: Expo loads every `.env*` file
+ * in the project root and records the values it loaded in its own dev logs,
+ * which is no place for a credential. Only this script reads it.
+ */
+const KEY_FILES = ['secrets/fal.env', '.env.local'];
+
 function readKey(): string {
-  const file = join(ROOT, '.env.local');
+  const file = KEY_FILES.map((candidate) => join(ROOT, candidate)).find((candidate) =>
+    existsSync(candidate),
+  );
+  if (!file) throw new Error('No fal.ai key found. Put FAL_KEY=<key> in secrets/fal.env.');
   const contents = readFileSync(file, 'utf8');
   for (const line of contents.split(/\r?\n/)) {
     const match = /^FAL_KEY=(.+)$/.exec(line.trim());
     if (match?.[1]) return match[1].trim();
   }
-  throw new Error('FAL_KEY is not set in .env.local');
+  throw new Error(`FAL_KEY is not set in ${file}`);
 }
 
 async function callFal(endpoint: string, key: string, body: unknown): Promise<Record<string, unknown>> {

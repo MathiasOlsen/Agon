@@ -57,7 +57,9 @@ pnpm start            # run in Expo Go or a development build
 
 ## Artwork
 
-The avatar and Interface marks are drawn from pixel data in `src/core/pixels/`
-and rendered with nearest-neighbour scaling, so every look is original and
-language-independent. `scripts/generate-art.mjs` documents the optional fal.ai
-pipeline used for concept artwork; it is not needed to run the app.
+The avatar, the interface glyphs and the app icon are drawn from pixel data in
+`src/core/pixels/` and rendered with nearest-neighbour scaling, so every look is
+original and language-independent. `scripts/generate-art.ts` documents the
+optional fal.ai pipeline used for concept artwork; it is not needed to run the
+app, and it reads its key from `secrets/fal.env` (git-ignored) rather than from
+`.env.local`, which Expo would load and echo into its dev logs.
