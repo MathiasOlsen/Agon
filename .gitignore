@@ -24,8 +24,13 @@ credentials.json
 credentials/
 play-service-account.json
 
-# Local scratch
+# Generated artwork source files and local scratch
 artifacts/
+assets/generated/
 *.log
 .DS_Store
 Thumbs.db
+
+# Test and build output
+coverage/
+*.tsbuildinfo
