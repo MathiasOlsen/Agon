@@ -529,3 +529,22 @@ test('a plan that starts today does not back-date last week', () => {
     'nothing should be archived before the person arrived',
   );
 });
+
+test('a period with nothing scheduled in it asks for nothing', () => {
+  // The fixture plan trains Monday and Wednesday. Joining on Thursday leaves none
+  // of that week's sessions to do, so no quest should appear for that week.
+  const THURSDAY = '2026-09-24T08:00:00.000Z';
+  let state = recompute(
+    makeState({ preferences: makePreferences({ planStartDate: '2026-09-24' }) }),
+    THURSDAY,
+  ).state;
+  state = enableCatalogueEntry(state, 'strength_workout', true, null, THURSDAY).state;
+  state = enableCatalogueEntry(state, 'cardio_workout', true, null, THURSDAY).state;
+  assert.equal(instanceById(state, instanceIdFor('cardio_workout', '2026-09-21')), undefined);
+  assert.equal(instanceById(state, instanceIdFor('strength_workout', '2026-09-21')), undefined);
+
+  // Next week has both days, so both quests turn up when they can be done.
+  const nextWeek = recompute(state, '2026-09-28T08:00:00.000Z').state;
+  assert.ok(instanceById(nextWeek, instanceIdFor('strength_workout', '2026-09-28')));
+  assert.ok(instanceById(nextWeek, instanceIdFor('cardio_workout', '2026-09-28')));
+});

@@ -127,16 +127,17 @@ export const YEAR_SHARE = 0.8;
 
 export function monthlyTargetFor(plan: PlanSlot[], from: IsoDate, to: IsoDate): number {
   const planned = plannedMainCountBetween(plan, from, to);
-  return Math.max(1, Math.ceil(planned * RHYTHM_SHARE));
+  return planned === 0 ? 0 : Math.ceil(planned * RHYTHM_SHARE);
 }
 
 export function yearlyTargetFor(plan: PlanSlot[], from: IsoDate, to: IsoDate): number {
   const planned = plannedMainCountBetween(plan, from, to);
-  return Math.max(1, Math.ceil(planned * YEAR_SHARE));
+  return planned === 0 ? 0 : Math.ceil(planned * YEAR_SHARE);
 }
 
 export function weeklyTargetFor(plan: PlanSlot[], from: IsoDate, to: IsoDate): number {
-  return Math.max(1, plannedMainCountBetween(plan, from, to));
+  // Zero is a real answer: a week with no planned sessions asks for nothing.
+  return plannedMainCountBetween(plan, from, to);
 }
 
 /** Weekly plan summary used on Today: "3 sessions this week". */

@@ -72,7 +72,7 @@ export default function QuestBoard() {
           <Link href={`/(tabs)/quests/${instance.id}`} asChild>
             <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={() => undefined}>
               <Text variant="label" tone="primary">
-                {t('quests.addLog')}
+                {t('quests.seeProgress')}
               </Text>
             </Pressable>
           </Link>

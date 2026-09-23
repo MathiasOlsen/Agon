@@ -267,13 +267,13 @@ function targetForEntry(
         const days = plannedMainDaysBetween(state.planSlots, from, range.end).filter((day) =>
           day.slots.some((slot) => slot.kind === 'strength'),
         );
-        return Math.max(1, days.length);
+        return days.length;
       }
       if (entry.key === 'cardio_workout') {
         const days = plannedMainDaysBetween(state.planSlots, from, range.end).filter((day) =>
           day.slots.some((slot) => slot.kind === 'cardio'),
         );
-        return Math.max(1, days.length);
+        return days.length;
       }
       return weeklyTargetFor(state.planSlots, from, range.end);
     case 'monthly':
@@ -531,6 +531,8 @@ export function recompute(state: AgonState, now: IsoInstant): RecomputeResult {
       // A period that ended before the plan started is not this person's quest.
       const range = periodRangeFor(entry.periodKind, key, state.preferences.weekStart);
       if (compareDates(range.end, state.preferences.planStartDate) < 0) continue;
+      // And a period with nothing scheduled in it has nothing to ask for.
+      if (targetForEntry(workingState, entry, key) <= 0) continue;
       createInstance({
         state: workingState,
         entry,
