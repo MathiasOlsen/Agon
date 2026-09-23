@@ -356,8 +356,6 @@ export const da: Record<TranslationKey, string> = {
   'session.addTime': '+15 sek',
   'session.skipRest': 'Spring pause over',
   'session.finish': 'Afslut træning',
-  'session.upNext': 'Næste',
-  'session.setOf': 'Sæt {current} af {total}',
   'session.lastSession': 'Sidste gang: {value}',
   'session.noExercises': 'Denne træning har endnu ingen øvelser.',
   'session.resumed': 'Fortsatte, hvor du sluttede.',

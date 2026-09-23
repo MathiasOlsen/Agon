@@ -439,25 +439,6 @@ export default function SessionScreen() {
           })
       )}
 
-      {nextSet ? (
-        <Card>
-          <CardHeader title={t('session.upNext')} />
-          <Text variant="label">
-            {t(exerciseById(nextSet.exercise.exerciseId)?.nameKey as 'exercise.goblet_squat')}
-          </Text>
-          <Text variant="caption" tone="muted">
-            {`${t('session.setOf', {
-              current: nextSet.setIndex + 1,
-              total: nextSet.exercise.sets,
-            })} · ${
-              nextSet.exercise.durationSec !== null
-                ? t('unit.seconds', { count: nextSet.exercise.durationSec })
-                : t('unit.reps', { count: nextSet.exercise.reps ?? 0 })
-            }`}
-          </Text>
-        </Card>
-      ) : null}
-
         {allSetsDone ? null : (
           <Text variant="caption" tone="muted">
             {t('session.strict')}
