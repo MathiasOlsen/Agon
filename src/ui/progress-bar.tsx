@@ -1,6 +1,6 @@
 import { View, type ViewStyle } from 'react-native';
 
-import { useThemeTokens } from '@/state/app-provider';
+import { useApp, useThemeTokens } from '@/state/app-provider';
 
 import { mix } from './color';
 import { Text } from './text';
@@ -93,7 +93,7 @@ export function SegmentedProgress({
 }
 
 export function XpChip({ xp, tone = 'accent' }: { xp: number; tone?: 'accent' | 'success' }) {
-  const theme = useThemeTokens();
+  const { theme, locale } = useApp();
   const { tokens } = theme;
   const background = tone === 'success' ? tokens.successSurface : tokens.accent;
   const color = tone === 'success' ? tokens.successText : tokens.onAccent;
@@ -109,7 +109,7 @@ export function XpChip({ xp, tone = 'accent' }: { xp: number; tone?: 'accent' | 
       }}
     >
       <Text variant="label" style={{ color }} tabular>
-        +{xp} XP
+        {`+${new Intl.NumberFormat(locale).format(xp)} XP`}
       </Text>
     </View>
   );

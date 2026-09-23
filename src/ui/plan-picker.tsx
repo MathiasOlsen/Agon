@@ -72,6 +72,7 @@ export function PlanPicker({
                 onPress={() => toggle(row.key, weekday)}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: selected }}
+                aria-checked={selected}
                 accessibilityLabel={`${t(row.labelKey as 'plan.strength')}, ${t(`weekday.full.${weekday}` as 'weekday.full.1')}`}
                 style={{
                   flex: 1,

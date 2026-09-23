@@ -25,6 +25,7 @@ export type { TranslationKey };
  */
 export type PluralKey =
   | 'unit.sessions'
+  | 'unit.sets'
   | 'unit.minutes'
   | 'unit.steps'
   | 'unit.kilometres'

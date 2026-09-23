@@ -54,8 +54,8 @@ export default function AddQuest() {
               }
             />
             <ToggleRow
-              title={t('quests.activeSwitches')}
-              subtitle={t(`period.${entry.periodKind}.one` as 'period.daily.one')}
+              title={t(`quest.${entry.key}.title` as 'quest.show_up.title')}
+              subtitle={`${t(`period.${entry.periodKind}.one` as 'period.daily.one')} · ${t('quests.activeSwitches')}`}
               value={enabled}
               onChange={(next) => store.enableCatalogue(entry.key, next, targetFor(entry), now)}
             />

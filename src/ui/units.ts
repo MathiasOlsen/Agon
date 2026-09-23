@@ -20,3 +20,23 @@ export function unitLabelKey(measure: Measurement): PluralKey {
       return 'unit.sessions';
   }
 }
+
+/** The unit as a bare noun, for text that already states the target. */
+export type UnitNameKey =
+  | 'unit.name.sessions'
+  | 'unit.name.minutes'
+  | 'unit.name.steps'
+  | 'unit.name.kilometres';
+
+export function unitNameKey(measure: Measurement): UnitNameKey {
+  switch (measure) {
+    case 'minutes':
+      return 'unit.name.minutes';
+    case 'steps':
+      return 'unit.name.steps';
+    case 'distance_km':
+      return 'unit.name.kilometres';
+    default:
+      return 'unit.name.sessions';
+  }
+}

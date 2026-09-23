@@ -14,7 +14,7 @@ import { PixelIcon } from '@/ui/pixel-sprite';
 import { ProgressBar } from '@/ui/progress-bar';
 import { EmptyState, Screen } from '@/ui/screen';
 import { Text } from '@/ui/text';
-import { unitLabelKey } from '@/ui/units';
+import { unitLabelKey, unitNameKey } from '@/ui/units';
 
 const REST_SECONDS = 90;
 
@@ -80,9 +80,7 @@ export default function SessionScreen() {
         </View>
 
         <Card>
-          <Text variant="title" tabular>
-            +{celebration.totalXp} XP
-          </Text>
+          <Text variant="title" tabular>{`+${celebration.totalXp} XP`}</Text>
           {celebration.bonusXp > 0 ? (
             <Text variant="label" tone="success">
               {t('complete.bonus')} +{celebration.bonusXp}
@@ -237,7 +235,7 @@ export default function SessionScreen() {
           <Card key={exercise.exerciseId}>
             <CardHeader
               title={t(exerciseById(exercise.exerciseId)?.nameKey as 'exercise.goblet_squat')}
-              subtitle={t(unitLabelKey('sessions'), { count: exercise.sets })}
+              subtitle={t('unit.sets', { count: exercise.sets })}
             />
             {Array.from({ length: exercise.sets }).map((_, setIndex) => {
               const log = setLogs.find(
@@ -303,8 +301,7 @@ export default function SessionScreen() {
             {t(exerciseById(nextSet.exercise.exerciseId)?.nameKey as 'exercise.goblet_squat')}
           </Text>
           <Text variant="caption" tone="muted">
-            {t(unitLabelKey('sessions'), { count: nextSet.exercise.sets })} ·{' '}
-            {nextSet.exercise.reps} reps
+            {t('unit.sets', { count: nextSet.exercise.sets })} · {nextSet.exercise.reps} reps
           </Text>
         </Card>
       ) : null}
@@ -408,6 +405,7 @@ function SetRow({
         onPress={() => onToggle(reps, loadKg, !completed)}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: completed }}
+        aria-checked={completed}
         accessibilityLabel={`${t('session.done')} ${index + 1}`}
         style={{
           width: 44,

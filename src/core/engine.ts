@@ -253,19 +253,25 @@ function targetForEntry(
 ): number {
   if (entry.defaultTarget !== null) return entry.defaultTarget;
   const range = periodRangeFor(entry.periodKind, periodKey, state.preferences.weekStart);
+  // Only count what the person was actually here for: a month or a year that
+  // began before they started must not hand them an unreachable target.
+  const from =
+    compareDates(range.start, state.preferences.planStartDate) < 0
+      ? state.preferences.planStartDate
+      : range.start;
   switch (entry.periodKind) {
     case 'weekly':
       if (entry.key === 'strength_foundation') {
-        const days = plannedMainDaysBetween(state.planSlots, range.start, range.end).filter((day) =>
+        const days = plannedMainDaysBetween(state.planSlots, from, range.end).filter((day) =>
           day.slots.some((slot) => slot.kind === 'strength'),
         );
         return Math.max(1, days.length);
       }
-      return weeklyTargetFor(state.planSlots, range.start, range.end);
+      return weeklyTargetFor(state.planSlots, from, range.end);
     case 'monthly':
-      return monthlyTargetFor(state.planSlots, range.start, range.end);
+      return monthlyTargetFor(state.planSlots, from, range.end);
     case 'yearly':
-      return yearlyTargetFor(state.planSlots, range.start, range.end);
+      return yearlyTargetFor(state.planSlots, from, range.end);
     default:
       return 1;
   }
@@ -357,12 +363,21 @@ export function dailyEntriesFor(state: AgonState, date: IsoDate): CatalogueEntry
   return entries;
 }
 
-/** Supporting habits the user switched on, created for one day. */
-export function supportingEntriesFor(state: AgonState): CatalogueEntry[] {
+/**
+ * Supporting habits that belong to a single day, created for each date.
+ *
+ * Weekly, monthly and yearly supporting goals are created by the period loop
+ * with their own period key: feeding them a daily key here would key a monthly
+ * quest by a date, which cannot be turned back into a period range.
+ */
+export function dailySupportingEntriesFor(state: AgonState): CatalogueEntry[] {
   return CATALOGUE.filter(
-    (entry) => entry.kind === 'supporting' && state.questTemplates.some(
-      (template) => template.id === templateIdFor(entry.key) && template.active,
-    ),
+    (entry) =>
+      entry.periodKind === 'daily' &&
+      entry.kind === 'supporting' &&
+      state.questTemplates.some(
+        (template) => template.id === templateIdFor(entry.key) && template.active,
+      ),
   );
 }
 
@@ -482,7 +497,7 @@ export function recompute(state: AgonState, now: IsoInstant): RecomputeResult {
       });
     }
   }
-  for (const entry of supportingEntriesFor(workingState)) {
+  for (const entry of dailySupportingEntriesFor(workingState)) {
     for (let offset = DAILY_BACKFILL_DAYS - 1; offset >= 0; offset -= 1) {
       const date = addDays(today, -offset);
       if (compareDates(date, state.preferences.planStartDate) < 0) continue;
@@ -505,6 +520,9 @@ export function recompute(state: AgonState, now: IsoInstant): RecomputeResult {
           ]
         : [periodKeyFor(entry.periodKind, today, state.preferences.weekStart)];
     for (const key of keys) {
+      // A period that ended before the plan started is not this person's quest.
+      const range = periodRangeFor(entry.periodKind, key, state.preferences.weekStart);
+      if (compareDates(range.end, state.preferences.planStartDate) < 0) continue;
       createInstance({
         state: workingState,
         entry,

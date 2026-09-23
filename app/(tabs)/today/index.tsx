@@ -19,7 +19,7 @@ import { CompanionSprite, PixelIcon } from '@/ui/pixel-sprite';
 import { ProgressBar } from '@/ui/progress-bar';
 import { Headline, Screen } from '@/ui/screen';
 import { Text } from '@/ui/text';
-import { unitLabelKey } from '@/ui/units';
+import { unitNameKey } from '@/ui/units';
 
 /**
  * Today answers one question: what now? One main action, up to two optional
@@ -190,7 +190,7 @@ export default function TodayScreen() {
                 </Text>
                 <Text variant="caption" tone="muted" tabular>
                   {t('unit.of', { done: instance.progress, target: instance.target })}{' '}
-                  {t(unitLabelKey(instance.measure), { count: instance.target })}
+                  {t(unitNameKey(instance.measure))}
                 </Text>
               </View>
               {instance.status === 'completed' ? (
@@ -264,7 +264,7 @@ export default function TodayScreen() {
                 color={theme.tokens.textMuted}
               />
               <Text variant="label" style={{ flex: 1 }}>
-                {t(modalityLabelKey(event.kind === 'strength' ? 'strength' : 'walk') as 'modality.walk')}
+                {t(`activity.${event.kind}` as 'activity.strength')}
               </Text>
               <Text variant="caption" tone="muted" tabular>
                 {formatLocalDate(event.localDate, state.preferences.locale, {

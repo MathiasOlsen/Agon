@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 
-import { modalityLabelKey } from '@/core/content';
 import { formatLocalDate, formatLocalTimeOfDay, localDateOf } from '@/core/dates';
 import type { ActivityEvent } from '@/core/types';
 import { useApp } from '@/state/app-provider';
@@ -10,7 +9,7 @@ import { Card } from '@/ui/card';
 import { SegmentedControl, Stepper } from '@/ui/controls';
 import { EmptyState, Screen } from '@/ui/screen';
 import { Text } from '@/ui/text';
-import { unitLabelKey } from '@/ui/units';
+import { unitNameKey } from '@/ui/units';
 
 /**
  * History is where a record can be corrected. A correction updates the affected
@@ -56,7 +55,7 @@ export default function HistoryScreen() {
           <Card key={event.id}>
             <View style={{ gap: 4 }}>
               <Text variant="label">
-                {t(modalityLabelKey(event.kind === 'strength' ? 'strength' : 'walk') as 'modality.walk')}
+                {t(`activity.${event.kind}` as 'activity.strength')}
               </Text>
               <Text variant="caption" tone="muted" tabular>
                 {formatLocalDate(event.localDate, state.preferences.locale)} ·{' '}
@@ -64,7 +63,7 @@ export default function HistoryScreen() {
               </Text>
               <Text variant="caption" tone="muted">
                 {t('unit.of', { done: event.quantity, target: event.quantity })}{' '}
-                {t(unitLabelKey(event.measure), { count: event.quantity })}
+                {t(unitNameKey(event.measure))}
               </Text>
             </View>
 

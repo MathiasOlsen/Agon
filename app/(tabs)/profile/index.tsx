@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
-import { addDays, localDateOf } from '@/core/dates';
-import { formatLocalDate } from '@/core/dates';
+import { addDays, formatLocalDate, localDateOf } from '@/core/dates';
 import { useApp } from '@/state/app-provider';
 import { Button } from '@/ui/button';
 import { Card, CardHeader } from '@/ui/card';
@@ -17,6 +16,7 @@ import { ThemePicker } from '@/ui/theme-picker';
 
 export default function ProfileScreen() {
   const { store, state, t } = useApp();
+  const router = useRouter();
   const now = new Date().toISOString();
   const today = localDateOf(now, state.preferences.timeZone);
   const { preferences } = state;
@@ -54,38 +54,32 @@ export default function ProfileScreen() {
       </Card>
 
       <Card>
-        <Link href="/(tabs)/profile/preferences" asChild>
-          <Pressable accessibilityRole="button" accessibilityLabel={t('profile.preferences')}>
-            <View pointerEvents="none">
-              <Row icon="sliders" title={t('profile.preferences')} subtitle={t('prefs.languageHint')} />
-            </View>
-          </Pressable>
-        </Link>
-        <Link href="/(tabs)/profile/reminders" asChild>
-          <Pressable accessibilityRole="button" accessibilityLabel={t('profile.reminders')}>
-            <View pointerEvents="none">
-              <Row
-                icon="bell"
-                title={t('profile.reminders')}
-                subtitle={preferences.reminders.enabled ? t('reminders.enable') : t('reminders.body')}
-              />
-            </View>
-          </Pressable>
-        </Link>
-        <Link href="/(tabs)/profile/data" asChild>
-          <Pressable accessibilityRole="button" accessibilityLabel={t('profile.data')}>
-            <View pointerEvents="none">
-              <Row icon="upload" title={t('profile.data')} subtitle={t('data.subtitle')} />
-            </View>
-          </Pressable>
-        </Link>
-        <Link href="/(tabs)/profile/privacy" asChild>
-          <Pressable accessibilityRole="button" accessibilityLabel={t('profile.privacy')}>
-            <View pointerEvents="none">
-              <Row icon="lock" title={t('profile.privacy')} subtitle={t('privacy.localOnly')} />
-            </View>
-          </Pressable>
-        </Link>
+        <Row
+          icon="sliders"
+          title={t('profile.preferences')}
+          subtitle={t('prefs.languageHint')}
+          onPress={() => router.push('/(tabs)/profile/preferences')}
+        />
+        <Row
+          icon="bell"
+          title={t('profile.reminders')}
+          subtitle={
+            preferences.reminders.enabled ? t('reminders.enable') : t('reminders.body')
+          }
+          onPress={() => router.push('/(tabs)/profile/reminders')}
+        />
+        <Row
+          icon="upload"
+          title={t('profile.data')}
+          subtitle={t('data.subtitle')}
+          onPress={() => router.push('/(tabs)/profile/data')}
+        />
+        <Row
+          icon="lock"
+          title={t('profile.privacy')}
+          subtitle={t('privacy.localOnly')}
+          onPress={() => router.push('/(tabs)/profile/privacy')}
+        />
       </Card>
 
       <Card>

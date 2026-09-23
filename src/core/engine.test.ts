@@ -3,6 +3,7 @@ import { test } from 'node:test';
 
 import { addDays } from './dates';
 import { plannedMainDaysBetween } from './plan';
+import { periodRangeFor } from './periods';
 import {
   acknowledge,
   checkoff,
@@ -37,6 +38,18 @@ import {
   rewardTotal,
 } from './test-support';
 import type { AgonState, QuestTemplate } from './types';
+
+/** Every period key must name a period of its own kind: a monthly quest may not
+ *  be keyed by a date. Enabling a long-term supporting quest used to break this
+ *  and crash the app with "Not a local date: 2026-09-23-01". */
+function assertPeriodKeysAreSane(state: AgonState): void {
+  for (const instance of state.questInstances) {
+    assert.doesNotThrow(
+      () => periodRangeFor(instance.periodKind, instance.periodKey, state.preferences.weekStart),
+      `${instance.id} is keyed by ${instance.periodKey}`,
+    );
+  }
+}
 
 function withWeeklyGoal(state: AgonState): AgonState {
   return enableCatalogueEntry(state, 'show_up', true, null, TEST_NOW).state;
@@ -456,4 +469,53 @@ test('a plan with no sessions asks for nothing', () => {
   );
   assert.equal(empty.state.questInstances.filter((i) => i.periodKind === 'daily').length, 0);
   assert.equal(rewardTotal(empty.state), 0, 'an empty plan never earns a bonus');
+});
+
+test('enabling a long-term supporting quest keeps every period key valid', () => {
+  let state = recompute(
+    makeState({ preferences: makePreferences({ planStartDate: TEST_TODAY }) }),
+    TEST_NOW,
+  ).state;
+  // A monthly and a yearly supporting goal: both used to be keyed by a date.
+  for (const key of ['notice_your_progress', 'set_up_next_week', 'a_year_of_movement']) {
+    state = enableCatalogueEntry(state, key, true, null, TEST_NOW).state;
+    assertPeriodKeysAreSane(state);
+  }
+  const monthly = state.questInstances.find(
+    (instance) => instance.catalogueKey === 'notice_your_progress',
+  );
+  assert.equal(monthly?.periodKey, '2026-09');
+  assert.equal(monthly?.periodKind, 'monthly');
+});
+
+test('targets only count the time the person was actually here', () => {
+  let state = recompute(
+    makeState({ preferences: makePreferences({ planStartDate: TEST_TODAY }) }),
+    TEST_NOW,
+  ).state;
+  state = enableCatalogueEntry(state, 'find_your_rhythm', true, null, TEST_NOW).state;
+  state = enableCatalogueEntry(state, 'keep_showing_up', true, null, TEST_NOW).state;
+  state = recompute(state, TEST_NOW).state;
+
+  // The fixture plan starts on Monday 21 September, so this month asks for four
+  // sessions (21, 23, 28 and 30 September), not the twenty-two a full month would.
+  const monthly = instanceById(state, instanceIdFor('find_your_rhythm', '2026-09'));
+  assert.equal(monthly?.target, 4, 'a month joined mid-way is not a full month of work');
+
+  const plannedFromStart = plannedMainDaysBetween(state.planSlots, TEST_TODAY, '2026-12-31').length;
+  const yearly = instanceById(state, instanceIdFor('keep_showing_up', '2026'));
+  assert.equal(yearly?.target, Math.max(1, Math.ceil(plannedFromStart * 0.8)));
+  assert.ok((yearly?.target ?? 0) < 100, 'a September start is not a 200-session year');
+});
+
+test('a plan that starts today does not back-date last week', () => {
+  const state = recompute(
+    makeState({ preferences: makePreferences({ planStartDate: TEST_TODAY }) }),
+    TEST_NOW,
+  ).state;
+  assert.equal(
+    state.questInstances.filter((instance) => instance.status === 'archived_incomplete').length,
+    0,
+    'nothing should be archived before the person arrived',
+  );
 });

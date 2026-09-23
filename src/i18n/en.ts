@@ -39,6 +39,19 @@ export const en = {
   'unit.done': 'Done',
   'unit.of': '{done} of {target}',
   'unit.xp': '{count} XP',
+  'unit.sets.one': '{count} set',
+  'unit.sets.other': '{count} sets',
+  'unit.name.sessions': 'sessions',
+  'unit.name.minutes': 'minutes',
+  'unit.name.steps': 'steps',
+  'unit.name.kilometres': 'km',
+
+  // Logged activity kinds
+  'activity.strength': 'Strength',
+  'activity.cardio': 'Aerobic',
+  'activity.mobility': 'Mobility',
+  'activity.movement': 'Movement',
+  'activity.recovery': 'Recovery',
 
   // Themes
   'theme.moss': 'Moss & Oat',
@@ -183,6 +196,8 @@ export const en = {
   'quests.active': 'Active',
   'quests.completed': 'Completed',
   'quests.archived': 'Archived',
+  'quests.archivedOn': 'Ended {date}',
+  'quests.nothingActive': 'Nothing active right now.',
   'quests.empty': 'No quests yet',
   'quests.emptyHint': 'Add one quest to get started.',
   'quests.addQuest': 'Add a quest',
@@ -208,6 +223,8 @@ export const en = {
   'quests.chooseMeasure': 'Measure progress in',
   'quests.activeSwitches': 'Active quests',
   'quests.supportingCap': 'Up to two supporting quests are rewarded each day.',
+  'quests.plannedBySession':
+    'This one counts the sessions your own plan scheduled. Complete them from Today.',
 
   // Quest detail and catalogue
   'quest.build_your_strength.title': 'Build Your Strength',

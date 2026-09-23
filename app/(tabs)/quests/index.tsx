@@ -97,7 +97,7 @@ export default function QuestBoard() {
         <Text variant="caption" tone="muted">
           {t('quests.active')}
         </Text>
-        {instances.active.length === 0 ? (
+        {instances.active.length === 0 && state.questInstances.length === 0 ? (
           <EmptyState
             title={t('quests.empty')}
             body={t('quests.emptyHint')}
@@ -107,6 +107,10 @@ export default function QuestBoard() {
               </Link>
             }
           />
+        ) : instances.active.length === 0 ? (
+          <Text variant="caption" tone="muted">
+            {t('quests.nothingActive')}
+          </Text>
         ) : (
           instances.active.map(renderQuest)
         )}
@@ -143,8 +147,8 @@ export default function QuestBoard() {
                 {t(`quest.${instance.catalogueKey}.title` as 'quest.show_up.title')}
               </Text>
               <Text variant="caption" tone="muted" tabular>
-                {t('quests.completedOn', {
-                  date: formatLocalDate(instance.startDate, state.preferences.locale),
+                {t('quests.archivedOn', {
+                  date: formatLocalDate(instance.endDate, state.preferences.locale),
                 })}
                 {' · '}
                 {t('quests.archivedIncomplete')}

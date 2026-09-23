@@ -76,3 +76,20 @@ test('every level and mood label exists in both languages', () => {
     }
   }
 });
+
+test('every logged activity kind reads as words, not as a key', () => {
+  const kinds = ['strength', 'cardio', 'mobility', 'movement', 'recovery'] as const;
+  for (const locale of LOCALES) {
+    for (const kind of kinds) {
+      const label = translate(locale, `activity.${kind}` as 'activity.strength');
+      assert.notEqual(label, `activity.${kind}`, `${locale}:activity.${kind} is missing`);
+    }
+  }
+});
+
+test('units read correctly next to a target', () => {
+  assert.equal(translate('en', 'unit.sets', { count: 1 }), '1 set');
+  assert.equal(translate('en', 'unit.sets', { count: 3 }), '3 sets');
+  assert.equal(translate('en', 'unit.name.minutes'), 'minutes');
+  assert.equal(translate('da', 'unit.sets', { count: 3 }), '3 sæt');
+});

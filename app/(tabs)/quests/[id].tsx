@@ -11,7 +11,7 @@ import { Stepper } from '@/ui/controls';
 import { ProgressBar, XpChip } from '@/ui/progress-bar';
 import { EmptyState, Screen } from '@/ui/screen';
 import { Text } from '@/ui/text';
-import { unitLabelKey } from '@/ui/units';
+import { unitNameKey } from '@/ui/units';
 
 /**
  * A quest in plain language: what it asks for, how it is measured, what counts,
@@ -87,9 +87,9 @@ export default function QuestDetail() {
         <Text variant="label" tabular>
           {completed
             ? t('a11y.completed', { label: title })
-            : t('unit.of', { done: instance.progress, target: instance.target })}
-          {' · '}
-          {t(unitLabelKey(instance.measure), { count: instance.target })}
+            : `${t('unit.of', { done: instance.progress, target: instance.target })} ${t(
+                unitNameKey(instance.measure),
+              )}`}
         </Text>
         <Text variant="caption" tone="muted" tabular>
           {formatLocalDate(instance.startDate, state.preferences.locale)} –{' '}
@@ -104,6 +104,10 @@ export default function QuestDetail() {
             onPress={() => store.checkoff(instance.id, now)}
             disabled={completed}
           />
+        </Card>
+      ) : instance.measure === 'planned_sessions' ? (
+        <Card>
+          <CardHeader title={t('quests.thatCounts')} subtitle={t('quests.plannedBySession')} />
         </Card>
       ) : (
         <Card>
