@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
-import { exerciseById } from '@/core/content';
+import { exerciseById, modalityLabelKey } from '@/core/content';
 import { formatDuration } from '@/core/dates';
 import type { SetLog } from '@/core/types';
 import { useApp } from '@/state/app-provider';
@@ -37,6 +37,9 @@ export default function SessionScreen() {
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
   const [showShorten, setShowShorten] = useState(false);
   const [shortenMinutes, setShortenMinutes] = useState(15);
+  const [cardioMinutes, setCardioMinutes] = useState(30);
+  const [cardioDistance, setCardioDistance] = useState(0);
+  const [cardioEffort, setCardioEffort] = useState(0);
   const [, setTick] = useState(0);
 
   // A single second-resolution tick keeps both timers honest without storing a
@@ -169,8 +172,64 @@ export default function SessionScreen() {
 
       {session.exercises.length === 0 ? (
         <Card>
-          <Text variant="body" tone="muted">
-            {t('session.noExercises')}
+          <CardHeader
+            title={t('session.cardioTitle')}
+            subtitle={t(modalityLabelKey(session.modality) as 'modality.walk')}
+          />
+          <View style={{ gap: 6 }}>
+            <Text variant="label">{t('session.duration')}</Text>
+            <Stepper
+              label={t('session.duration')}
+              value={cardioMinutes}
+              step={5}
+              min={5}
+              max={300}
+              onChange={setCardioMinutes}
+              format={(value) => `${value} min`}
+            />
+          </View>
+          <View style={{ gap: 6 }}>
+            <Text variant="label">{t('session.distance')}</Text>
+            <Stepper
+              label={t('session.distance')}
+              value={cardioDistance}
+              step={1}
+              min={0}
+              max={500}
+              onChange={setCardioDistance}
+              format={(value) =>
+                value === 0
+                  ? t('common.optional')
+                  : `${value} ${state.preferences.distanceUnit === 'km' ? t('unit.kilometres', { count: 1 }) : t('unit.miles', { count: 1 })}`
+              }
+            />
+          </View>
+          <View style={{ gap: 6 }}>
+            <Text variant="label">{t('session.effort')}</Text>
+            <Stepper
+              label={t('session.effort')}
+              value={cardioEffort}
+              min={0}
+              max={10}
+              onChange={setCardioEffort}
+              format={(value) => (value === 0 ? t('common.optional') : `${value}/10`)}
+            />
+          </View>
+          <Button
+            label={t('session.saveSession')}
+            onPress={() => {
+              store.logCardio({
+                sessionId: session.id,
+                modality: session.modality,
+                durationSec: cardioMinutes * 60,
+                distanceKm: cardioDistance > 0 ? cardioDistance : null,
+                effort: cardioEffort > 0 ? cardioEffort : null,
+              });
+              store.completeWorkout(session.id, new Date().toISOString());
+            }}
+          />
+          <Text variant="caption" tone="muted">
+            {t('today.savedLocally')}
           </Text>
         </Card>
       ) : (
