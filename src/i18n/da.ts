@@ -380,6 +380,11 @@ export const da: Record<TranslationKey, string> = {
   'session.shortenedBody':
     'En forkortet træning erstatter den planlagte. Den tæller én gang og aldrig som en ekstra belønning.',
   'session.minutes': 'Minutter at registrere',
+  'session.minutesHint':
+    'Hvor længe du faktisk trænede. Det er, hvad din historik viser, og belønningen er den samme.',
+  'session.minutesFloor':
+    'Under 10 minutter tæller den ikke som dagens træning.',
+  'session.record': 'Registrér',
   'session.cardioTitle': 'Log konditionstræning',
   'session.modality': 'Aktivitet',
   'session.duration': 'Varighed i minutter',

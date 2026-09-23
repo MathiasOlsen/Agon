@@ -392,6 +392,11 @@ export const en = {
   'session.shortenedBody':
     'A shortened session replaces the planned one. It counts once, and never as a second reward.',
   'session.minutes': 'Minutes to record',
+  'session.minutesHint':
+    'How long you actually trained. It is what your history shows, and the reward is the same either way.',
+  'session.minutesFloor':
+    'Under 10 minutes it does not count as a session for that day.',
+  'session.record': 'Record',
   'session.cardioTitle': 'Log aerobic activity',
   'session.modality': 'Activity',
   'session.duration': 'Duration in minutes',

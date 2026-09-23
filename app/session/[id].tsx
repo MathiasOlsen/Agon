@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 
 import { describeComponent, exerciseById, modalityLabelKey, sessionIsComplete } from '@/core/content';
 import { formatDuration } from '@/core/dates';
+import { MIN_MINUTES_FOR_SESSION } from '@/core/engine';
 import type { SetLog } from '@/core/types';
 import { PIXEL } from '@/theme/tokens';
 import { useApp } from '@/state/app-provider';
@@ -191,6 +192,15 @@ export default function SessionScreen() {
   const stopRest = () => {
     setRestEndsAt(null);
     setRestHeld(null);
+  };
+
+  // "Finish early" asks how long the person actually trained. The clock already
+  // knows, so the number starts there rather than at a default that means
+  // nothing, and it is rounded to the step the control offers.
+  const openShorten = () => {
+    const trained = Math.round(elapsedSeconds / 60 / 5) * 5;
+    setShortenMinutes(Math.max(5, Math.min(120, trained)));
+    setShowShorten(true);
   };
 
   const restStrip = (
@@ -464,10 +474,16 @@ export default function SessionScreen() {
             max={120}
             onChange={setShortenMinutes}
           />
+          <Text variant="caption" tone="muted">
+            {t('session.minutesHint')}
+          </Text>
+          {shortenMinutes < MIN_MINUTES_FOR_SESSION ? (
+            <Text variant="caption">{t('session.minutesFloor')}</Text>
+          ) : null}
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <Button label={t('common.cancel')} variant="secondary" onPress={() => setShowShorten(false)} />
             <Button
-              label={t('session.shortenedConfirm')}
+              label={`${t('session.record')} ${t('unit.minutes', { count: shortenMinutes })}`}
               onPress={() => {
                 if (session.scheduledSessionId) {
                   store.shortenSession(
@@ -486,7 +502,7 @@ export default function SessionScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('session.shortened')}
-            onPress={() => setShowShorten(true)}
+            onPress={openShorten}
         >
           <Text variant="label" tone="primary">
             {t('session.shortened')}
@@ -503,7 +519,7 @@ export default function SessionScreen() {
           <Button
             label={t('session.finishEarly')}
             variant="secondary"
-            onPress={() => setShowShorten(true)}
+            onPress={openShorten}
           />
         )}
     </Screen>
