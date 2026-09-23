@@ -141,3 +141,27 @@ export function countsSentenceKey(instance: QuestInstance): string {
       return 'quests.counts.checkoff';
   }
 }
+
+/**
+ * The same explanation, short enough for a quest card. The card already carries
+ * the objective, so this is the mechanics in a handful of words.
+ */
+export function countsShortKey(instance: QuestInstance): string {
+  switch (instance.measure) {
+    case 'planned_sessions':
+      return 'quests.counts.short.sessions';
+    case 'minutes':
+      return 'quests.counts.short.minutes';
+    case 'seconds':
+      return 'quests.counts.short.seconds';
+    case 'reps':
+      return 'quests.counts.short.reps';
+    case 'steps':
+      return 'quests.counts.short.steps';
+    case 'distance_km':
+      return 'quests.counts.short.distance';
+    case 'checkoff':
+    default:
+      return 'quests.counts.short.checkoff';
+  }
+}

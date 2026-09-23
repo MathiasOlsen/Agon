@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 
 import { formatLocalDate } from '@/core/dates';
 import type { PeriodKind, QuestInstance } from '@/core/types';
+import { countsShortKey } from '@/core/progress';
 import { useApp } from '@/state/app-provider';
 import { useInstancesForPeriod, usePeriodCounters } from '@/state/hooks';
 import { Button } from '@/ui/button';
@@ -48,6 +49,12 @@ export default function QuestBoard() {
             <Text variant="caption" tone="muted">
               {t(`quest.${instance.catalogueKey}.objective` as 'quest.show_up.objective')}
             </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <PixelIcon name="chart" size={12} color={theme.tokens.textMuted} />
+              <Text variant="caption" tone="muted">
+                {t(countsShortKey(instance) as 'quests.counts.short.sessions')}
+              </Text>
+            </View>
           </View>
           <XpChip xp={instance.xp} />
         </View>

@@ -7,7 +7,7 @@ import {
   logActivity,
   recompute,
 } from './engine';
-import { countsSentenceKey, questBreakdown } from './progress';
+import { countsSentenceKey, countsShortKey, questBreakdown } from './progress';
 import {
   TEST_NOW,
   TEST_TODAY,
@@ -150,5 +150,10 @@ test('every unit explains itself in one sentence', () => {
     const instance = state.questInstances.find((candidate) => candidate.catalogueKey === key);
     assert.ok(instance, `${key} should have an instance`);
     assert.equal(countsSentenceKey(instance), expected);
+    assert.equal(
+      countsShortKey(instance),
+      expected.replace('quests.counts.', 'quests.counts.short.'),
+      'the card gets the short version of the same explanation',
+    );
   }
 });
