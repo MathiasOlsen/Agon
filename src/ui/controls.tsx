@@ -1,0 +1,263 @@
+import { useState, type ReactNode } from 'react';
+import { Pressable, Switch, TextInput, View } from 'react-native';
+
+import { TOUCH } from '@/theme/tokens';
+
+import { useThemeTokens } from '@/state/app-provider';
+
+import { mix } from './color';
+import { PixelIcon } from './pixel-sprite';
+import { Text } from './text';
+
+/** Small input controls shared by onboarding, preferences and logging. */
+
+export function SegmentedControl<T extends string>({
+  value,
+  options,
+  onChange,
+  label,
+}: {
+  value: T;
+  options: Array<{ value: T; label: string }>;
+  onChange: (value: T) => void;
+  label: string;
+}) {
+  const theme = useThemeTokens();
+  const { tokens } = theme;
+  return (
+    <View
+      accessibilityRole="tablist"
+      accessibilityLabel={label}
+      style={{
+        flexDirection: 'row',
+        backgroundColor: tokens.progressTrack,
+        borderRadius: theme.treatment === 'stepped' ? 2 : 10,
+        padding: 3,
+        gap: 3,
+      }}
+    >
+      {options.map((option) => {
+        const selected = option.value === value;
+        return (
+          <Pressable
+            key={option.value}
+            onPress={() => onChange(option.value)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected }}
+            accessibilityLabel={option.label}
+            style={{
+              flex: 1,
+              minHeight: 40,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: theme.treatment === 'stepped' ? 0 : 8,
+              backgroundColor: selected ? tokens.surface : 'transparent',
+            }}
+          >
+            <Text variant="label" tone={selected ? 'primary' : 'muted'} numberOfLines={1}>
+              {option.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+export function Stepper({
+  value,
+  onChange,
+  step = 1,
+  min = 0,
+  max = 999,
+  label,
+  format,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  step?: number;
+  min?: number;
+  max?: number;
+  label: string;
+  format?: (value: number) => string;
+}) {
+  const theme = useThemeTokens();
+  const { tokens } = theme;
+  const clamp = (next: number) => Math.max(min, Math.min(max, next));
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }} accessibilityLabel={label}>
+      <Pressable
+        onPress={() => onChange(clamp(value - step))}
+        accessibilityRole="button"
+        accessibilityLabel={`${label} minus`}
+        hitSlop={6}
+        style={{
+          minHeight: TOUCH.minHeight,
+          minWidth: TOUCH.minHeight,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderWidth: 1,
+          borderColor: tokens.border,
+          borderRadius: theme.treatment === 'stepped' ? 2 : 10,
+        }}
+      >
+        <PixelIcon name="minus" size={14} color={tokens.text} />
+      </Pressable>
+      <View style={{ minWidth: 76, alignItems: 'center' }}>
+        <Text variant="section" tabular>
+          {format ? format(value) : String(value)}
+        </Text>
+      </View>
+      <Pressable
+        onPress={() => onChange(clamp(value + step))}
+        accessibilityRole="button"
+        accessibilityLabel={`${label} plus`}
+        hitSlop={6}
+        style={{
+          minHeight: TOUCH.minHeight,
+          minWidth: TOUCH.minHeight,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderWidth: 1,
+          borderColor: tokens.border,
+          borderRadius: theme.treatment === 'stepped' ? 2 : 10,
+        }}
+      >
+        <PixelIcon name="plus" size={14} color={tokens.text} />
+      </Pressable>
+    </View>
+  );
+}
+
+export function ToggleRow({
+  title,
+  subtitle,
+  value,
+  onChange,
+}: {
+  title: string;
+  subtitle?: string;
+  value: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  const theme = useThemeTokens();
+  const { tokens } = theme;
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 }}>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text variant="label">{title}</Text>
+        {subtitle ? (
+          <Text variant="caption" tone="muted">
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onChange}
+        accessibilityLabel={title}
+        trackColor={{ true: tokens.primary, false: tokens.progressTrack }}
+        thumbColor={tokens.surface}
+      />
+    </View>
+  );
+}
+
+export function OptionPill({
+  selected,
+  label,
+  onPress,
+  children,
+}: {
+  selected: boolean;
+  label: string;
+  onPress: () => void;
+  children?: ReactNode;
+}) {
+  const theme = useThemeTokens();
+  const { tokens } = theme;
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      accessibilityLabel={`${label}${selected ? ', selected' : ''}`}
+      style={{
+        minHeight: TOUCH.minHeight,
+        minWidth: TOUCH.minWidth,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        borderWidth: selected ? 2 : 1,
+        borderColor: selected ? tokens.primary : mix(tokens.border, tokens.surface, 0.5),
+        backgroundColor: tokens.surface,
+        borderRadius: theme.treatment === 'stepped' ? 2 : 12,
+      }}
+    >
+      {children}
+      <Text variant="caption" tone={selected ? 'primary' : 'muted'} numberOfLines={1}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+export function Field({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  keyboardType = 'default',
+  secureTextEntry = false,
+  hint,
+  autoCapitalize = 'sentences',
+}: {
+  label: string;
+  value: string;
+  onChangeText: (value: string) => void;
+  placeholder?: string;
+  keyboardType?: 'default' | 'number-pad' | 'decimal-pad';
+  secureTextEntry?: boolean;
+  hint?: string;
+  autoCapitalize?: 'none' | 'sentences';
+}) {
+  const theme = useThemeTokens();
+  const { tokens } = theme;
+  const [focused, setFocused] = useState(false);
+  return (
+    <View style={{ gap: 6 }}>
+      <Text variant="label">{label}</Text>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={tokens.textMuted}
+        keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
+        autoCapitalize={autoCapitalize}
+        autoCorrect={false}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        accessibilityLabel={label}
+        style={{
+          minHeight: TOUCH.minHeight,
+          borderWidth: focused ? 2 : 1,
+          borderColor: focused ? tokens.primary : tokens.border,
+          borderRadius: theme.treatment === 'stepped' ? 2 : 10,
+          paddingHorizontal: 12,
+          paddingVertical: 10,
+          color: tokens.text,
+          backgroundColor: tokens.surface,
+          fontSize: 16,
+        }}
+      />
+      {hint ? (
+        <Text variant="caption" tone="muted">
+          {hint}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
