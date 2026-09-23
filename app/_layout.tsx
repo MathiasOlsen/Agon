@@ -67,6 +67,14 @@ function RootStack() {
             presentation: state.preferences.reduceMotion ? 'card' : 'fullScreenModal',
           }}
         />
+        <Stack.Screen
+          name="session/new"
+          options={{
+            headerShown: true,
+            title: t('session.buildOwn'),
+            presentation: 'modal',
+          }}
+        />
       </Stack>
     </>
   );

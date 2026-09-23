@@ -224,6 +224,8 @@ export function rawProgressFor(state: AgonState, instance: QuestInstance): numbe
     case 'sessions':
       return eventsInRange(state, instance).reduce((total) => total + 1, 0);
     case 'minutes':
+    case 'seconds':
+    case 'reps':
     case 'steps':
     case 'distance_km':
       return eventsInRange(state, instance).reduce((total, event) => total + event.quantity, 0);
@@ -261,9 +263,15 @@ function targetForEntry(
       : range.start;
   switch (entry.periodKind) {
     case 'weekly':
-      if (entry.key === 'strength_foundation') {
+      if (entry.key === 'strength_workout') {
         const days = plannedMainDaysBetween(state.planSlots, from, range.end).filter((day) =>
           day.slots.some((slot) => slot.kind === 'strength'),
+        );
+        return Math.max(1, days.length);
+      }
+      if (entry.key === 'cardio_workout') {
+        const days = plannedMainDaysBetween(state.planSlots, from, range.end).filter((day) =>
+          day.slots.some((slot) => slot.kind === 'cardio'),
         );
         return Math.max(1, days.length);
       }

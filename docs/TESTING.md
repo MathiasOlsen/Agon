@@ -23,6 +23,7 @@ TypeScript hooks in `scripts/ts-hooks.mjs`.
 | Mood | Thresholds, seven-of-fourteen sampling, recovery and pause freezing the window, today lifting but not lowering the score, pre-onboarding days |
 | Quest engine | Instance creation from the plan, derived progress, completion, the daily bonus, reward idempotency, clock rollback, correction and reversal, the supporting cap, plan-derived targets, check-offs, expiry without loss |
 | Workouts | Session identity, finishing once, shortening replacing the original, rescheduling, one activity advancing several goals from one record |
+| Bundles | Every starter bundle opens with a warm-up and offers a way out of every tool; strict completion (one unticked set leaves the session unfinished); three strength days rotate through three different bundles; a self-written session completes the day; micro-quests complete in reps and in seconds |
 | Backup | Round trip, wrong passphrase, damaged file, newer format and schema refusal, readable export, restore preview, recompute after restore |
 | Artwork | Rectangle decomposition correctness and compactness, sprite frame size, tier and mood differences, glyph integrity |
 | Language | Key parity between English and Danish, placeholder parity, plural selection, locale fallback |

@@ -1,6 +1,6 @@
 # Agon — developer handoff
 
-Version 1.3 · 22 September 2026 · Product and visual specification
+Version 1.4 · 23 September 2026 · Product and visual specification
 
 This is a proposed implementation brief, not a completed application. User requirements are distinguished from suggested implementation defaults. Exact tokens and behavior below take precedence over illustrative reference images.
 
@@ -57,17 +57,30 @@ Empty state: invite the user to add one quest. Offline state: continue local wor
 
 ## 4. Quest model and rules
 
-| Period | Purpose | Example | Proposed reward |
-| --- | --- | --- | --- |
-| Daily | Execute the plan | Complete today's planned strength OR cardio session | 200 XP, equal across modalities |
-| Daily supporting | Optional habit | User-chosen movement or mobility goal | 50 XP, at most two rewarded supporting quests/day |
-| Weekly | Follow a balanced routine | Complete the personally scheduled sessions | 600 XP for the main weekly goal |
-| Monthly | Review a block | Complete the planned block review, regardless of performance improvement | 2,000 XP for the main monthly milestone |
-| Yearly | Sustain a meaningful goal | Reach a user-selected annual milestone | 10,000 XP for the main yearly goal |
+| Period | Question it answers | What it asks for | Size | Proposed reward |
+| --- | --- | --- | --- | --- |
+| Daily micro-quest | What can I do right now? | A small movement that needs no equipment and no planning | 1–5 minutes | 50 XP each, at most two rewarded per day |
+| Daily planned session | Today's training | Complete the session the plan scheduled for today | One session | 200 XP on a training day |
+| Weekly bundle | Did I train? | Complete the week's planned sessions, each one a bundle of components | 30–40 minutes per session | 600 XP for the main weekly goal |
+| Monthly | Is the plan working? | Attendance across the block, plus an explicit review | Weeks | 2,000 XP for the main monthly milestone |
+| Yearly | What am I building? | Reach the milestone the person chose | A year | 10,000 XP for the main yearly goal |
 
-Reward quantities remain tuning defaults. Targets come from the user's plan, not universal workout counts or a required three-quest day. Show one main daily action and up to two optional supporting quests. Planned recovery preserves mood/streak without requiring exercise; it is not an extra workout quest. Freeze each instance's plan revision, target and reward, while supporting explicit current-plan revisions as described below. Do not give unlimited XP for more exercise, heavier weights, calorie burn or creating duplicate quests. Other milestone achievements can award recognition without further XP. No universal 180-workout annual target.
+Each period asks a different size of question, so a bad day can still be a completed day: the micro-quest is always available, the session is the real work, and the longer goals reward consistency rather than heroics.
 
-- Units: steps, minutes, workout count, distinct active days and simple check-off.
+Reward quantities remain tuning defaults. Targets come from the user's plan, not universal workout counts or a required three-quest day. Planned recovery preserves mood/streak without requiring exercise; it is not an extra workout quest. Freeze each instance's plan revision, target and reward, while supporting explicit current-plan revisions as described below. Do not give unlimited XP for more exercise, heavier weights, calorie burn or creating duplicate quests. Other milestone achievements can award recognition without further XP. No universal 180-workout annual target.
+
+### Workout bundles
+
+A weekly quest carries a bundle: a named set of components, each with sets, reps, a load and the tool it needs. The bundle is what a session actually consists of, and it is the same content the workout screen logs.
+
+- Sets are the unit of completion. Ticking every set completes its component; a component can also be marked done in one action when someone is simply getting through it.
+- A session is strict: it completes when every required component is done. The bundle is the workout, so finishing it is what completes the day.
+- Every tool-assisted component names a bodyweight alternative beside it, and components can be swapped. A missing dumbbell changes the movement; it never silently deletes the work.
+- A session that cannot be finished is shortened or rescheduled. Both replace the original session and count once, as described below. Nothing is owed on a recovery day.
+- People may build their own sessions from the exercise library and start one from a planned day. Doing so completes that day's plan entry and counts toward the week exactly like a prescribed bundle, so a self-written workout is never second class.
+- One session counts once per goal, however many components it contains.
+
+- Units: reps, seconds, steps, minutes, distance, workout count, distinct active days and simple check-off.
 - Store activity events once. Related daily/weekly/monthly/yearly goals may intentionally count the same event, each awarding its own quest reward once. Never count one event twice within a goal.
 - States: not started, in progress, completed, archived incomplete. Completed progress bars are 100%; active bars equal clamped progress/target. Label status with text/icons, not color alone.
 - Persist XP automatically when completion is committed. A visible “Claim XP” control acknowledges the already-earned reward and plays feedback; it must not be a second XP grant. An acknowledgement flag prevents repeated celebration after reopening.
@@ -264,30 +277,60 @@ Onboarding collects experience, goals, available days, equipment, preferred acti
 
 ### Quest catalogue
 
-| Period | Quest | Actual objective | How it fits |
-| --- | --- | --- | --- |
-| Daily | Build Your Strength | Complete today's saved strength session | Scheduled strength day |
-| Daily | Find Your Pace | Complete the planned walk, run, ride, swim or other aerobic session | Scheduled cardio day |
-| Daily optional | Keep Moving | Reach the user's chosen movement target | Optional habit, with accessible alternatives to steps |
-| Daily optional | A Little Reset | Complete a chosen mobility routine | Supporting activity, never forced on a rest day |
-| Daily | Make It Happen | Complete an explicitly shortened version of the planned session | Time-limited alternative, replaces the original instance |
-| Recovery | Respect the Rest | Follow today's recovery schedule | No exercise/check-in required for avatar protection |
-| Weekly | Show Up | Complete this week's personally planned sessions | Primary consistency quest |
-| Weekly | Strength Foundation | Complete scheduled strength sessions | Focus-specific progress, not extra sessions |
-| Weekly | Build Your Engine | Accumulate chosen aerobic minutes | Aggregates eligible activity |
-| Weekly | Set Up Next Week | Review availability and schedule | Optional planning, no required exercise |
-| Monthly | Find Your Rhythm | Reach a chosen planned-session completion target | Example: 10 of 12 sessions, not a universal rule |
-| Monthly | Finish the Chapter | Finish/review a training block | Programs keep their own dates |
-| Monthly | Notice Your Progress | Review comparable performance or effort records | Reward reviewing, not mandatory improvement |
-| Monthly | Make It Fit | Adjust the next block to real availability | User confirms changes |
-| Yearly | Keep Showing Up | Reach a chosen session count | Accounts for start date and planned breaks |
-| Yearly | Your First Finish Line | Complete a chosen event goal | Optional user-selected goal, no race requirement |
-| Yearly | Build Your Foundation | Complete chosen training blocks | Long-term consistency |
-| Yearly | A Year of Movement | Reach a chosen activity-specific distance | Keep disciplines/units distinct |
+| Period | Quest | What the person actually does | Completes when | Reward |
+| --- | --- | --- | --- | --- |
+| Daily micro | Ten Push-ups | 10 push-ups, with a wall or knee variant beside it | 10 reps | 50 XP |
+| Daily micro | Core Ten | 10 sit-ups, or dead bugs when lying flat is awkward | 10 reps | 50 XP |
+| Daily micro | Twenty Squats | 20 bodyweight squats; a chair-assisted variant is offered | 20 reps | 50 XP |
+| Daily micro | One Minute Plank | 60 seconds of plank, in as many pieces as needed | 60 seconds | 50 XP |
+| Daily micro | Ten Minute Walk | 10 minutes on your feet, indoors or out | 10 minutes | 50 XP |
+| Daily micro | Reach and Breathe | 2 minutes of stretching or mobility | 2 minutes | 50 XP |
+| Daily session | Today's Session | The bundle the plan scheduled for today, ticked set by set | every component of the bundle | 200 XP |
+| Daily session | Make It Happen | An explicitly shortened version of today's session | replaces the session, counts once | 200 XP |
+| Recovery | Respect the Rest | Follow today's recovery schedule | no exercise or check-in needed | 200 XP |
+| Weekly main | Strength Workout | The week's strength bundle, component by component | every component, in every planned strength session | 600 XP |
+| Weekly main | Cardio Workout | The week's aerobic bundle, part by part | every part, in every planned aerobic session | 600 XP |
+| Weekly supporting | Show Up | Complete all the sessions the plan scheduled | plan-derived count | 50 XP and recognition |
+| Weekly supporting | Build Your Engine | Accumulate the aerobic minutes you chose | your target, 90 by default | 50 XP and recognition |
+| Weekly supporting | Set Up Next Week | Choose the days that work for next week | check-off | 50 XP and recognition |
+| Monthly main | Find Your Rhythm | Reach the session target the block implies | about 85% of what the plan asked for, from the start date | 2,000 XP |
+| Monthly | Finish the Chapter | Close out the block just finished | check-off | 50 XP and recognition |
+| Monthly | Notice Your Progress | Look back at one comparable session or effort | check-off; reviewing counts, improving is not required | 50 XP and recognition |
+| Monthly | Make It Fit | Adjust the next block to the week that really exists | check-off | 50 XP and recognition |
+| Yearly main | Keep Showing Up | Your chosen session count across the year | from the plan and the start date | 10,000 XP |
+| Yearly | A Year of Movement | Your chosen distance in one discipline | your target, e.g. 300 km | 50 XP and recognition |
+| Yearly | Your First Finish Line | The event or milestone you picked | check-off; no race required | 50 XP and recognition |
+| Yearly | Build Your Foundation | Complete the blocks you chose | plan-derived | 50 XP and recognition |
 
-Choose one main weekly goal and up to two supporting views; avoid presenting the entire catalogue as obligations. One activity can advance linked period goals, but is logged only once. Supporting goals beyond the reward caps provide recognition rather than XP multiplication.
+One weekly main goal, plus up to two supporting weekly views. The main weekly quest is the bundle for the plan's dominant modality: a strength-led week is led by Strength Workout, an aerobic-led week by Cardio Workout. A plan that mixes both still gets the other bundle as a supporting view.
+
+Avoid presenting the whole catalogue as obligations. One activity can advance linked period goals, but is logged only once. Supporting goals beyond the reward caps provide recognition rather than XP multiplication.
 
 Daily actions answer “What today?”; weeklies answer “Did I follow my routine?”; monthlies answer “Is the plan working?”; yearlies answer “What am I building toward?”. Playful names always include a plain-language objective and clear completion criteria.
+
+### Starter bundles
+
+Four bundles ship at launch: three strength and one aerobic. Each is a complete session at home with minimal equipment, and every tool-assisted component names a bodyweight alternative. Warm-up is part of the bundle, so a strict completed session includes it.
+
+**Strength Workout A — foundation.** Warm-up 1 × 5 minutes easy movement; goblet squat 3 × 10 (dumbbell; bodyweight or backpack alternative); push-up 3 × 10 (wall or knee variant); one-arm row 3 × 10 each side (dumbbell; band or table row); sit-up 3 × 10 (dead bug alternative); plank 3 × 30 seconds (knee plank).
+
+**Strength Workout B — hinge and pull.** Warm-up 1 × 5 minutes; Romanian deadlift 3 × 10 (dumbbell; hip bridge); shoulder press 3 × 10 (dumbbell; pike push-up); split squat 3 × 10 each leg (chair-assisted variant); band row 3 × 12 (towel row); side plank 3 × 20 seconds each side (knee variant).
+
+**Legs and Core.** Warm-up 1 × 5 minutes; reverse lunge 3 × 10 each leg; hip bridge 3 × 12; chair squat 3 × 15; dead bug 3 × 10; side plank 3 × 25 seconds each side. All bodyweight, with a loaded-backpack option for every leg movement.
+
+**Cardio Workout.** One 20-minute easy session, or eight rounds of one minute harder and one minute easy; optional distance in the person's own unit. Interval intensity is described as "able to speak a short sentence", never as a target heart rate.
+
+Default weekly placement for a three-day plan: A, Legs and Core, B, with aerobic days taken from the plan. The plan, not the bundle, decides which day anything falls on.
+
+### Starter content review
+
+The bundles are draft content and are recorded as such. Reviewed 23 September 2026 by the assistant, acting as content reviewer at the product owner's request. Scope: whether the movements, set and rep ranges, and progressions are reasonable for a beginner-to-intermediate adult doing general fitness at home with minimal equipment.
+
+Checked and found sound: balanced push, pull, squat, hinge and core work across the week; 3 × 8–15 repetitions at a load that should leave two to three repetitions in reserve; holds capped at 60 seconds; every tool-assisted movement has a bodyweight alternative; no maximal lifts, no training to failure, no ballistic or high-impact work, no loading that requires a coach to supervise; a warm-up is included in every bundle; left and right sides are trained symmetrically.
+
+Deliberately excluded: heart-rate targets, calorie targets, bodyweight or body-composition goals, and any claim about health outcomes.
+
+Limits of this review, recorded so nobody overstates it: it is not a clinical assessment and not individualised coaching. It does not verify technique for any particular person, medical suitability, pregnancy, injury or rehabilitation, and it replaces neither supervision nor qualified advice. The app must keep describing this content as general information, must keep telling people to stop if something hurts, and must direct anyone with a health condition to a qualified professional. A qualified fitness professional must still review the bundles before public release, and the product owner accepts that risk as the named reviewer.
 
 ### Example schedule and aggregation
 
@@ -379,3 +422,7 @@ Replaced the free-core/paid-cosmetics proposal with the user-confirmed “buy on
 ### Version 1.3 change record
 
 Aligned section 12 with the two AGON concept boards supplied with this revision, “AGON / 01 — Fitness Flows” and “AGON / 02 — Avatar & Personal Settings”, replacing the earlier board descriptions and their discrepancy notes. Stated that the boards are illustrative and that this document governs, and recorded the specific board values that must not be implemented: the placeholder level-8 XP figures, the duplicated weekly XP chip, and the non-MVP statistics tiles.
+
+### Version 1.4 change record
+
+Restructured the quests by size so each period asks a question a person can answer. Dailies are now micro-quests — push-ups, sit-ups, squats, a plank, a walk, a stretch — that need no equipment and no planning, rewarded 50 XP with the existing two-a-day cap; the planned session stays the day's 200 XP main action. Weeklies are bundles: a named set of components with sets, reps, load and tool, completed set by set, strictly, with the bundle for the plan's dominant modality as the main weekly goal. Added the bundle model to section 4, replaced the quest catalogue in section 14, and specified four starter bundles: Strength Workout A, Strength Workout B, Legs and Core, and Cardio Workout. Added the starter content review and its limits, and confirmed that people may write and run their own sessions, which complete the day's plan entry exactly like a prescribed bundle. Added reps and seconds as units.

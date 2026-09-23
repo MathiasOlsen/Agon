@@ -1,3 +1,4 @@
+import { bundleForStrengthDay } from './content';
 import { addDays, compareDates, dayOfWeek, startOfWeek } from './dates';
 import type { ActivityKind, IsoDate, Modality, PlanSlot, WeekStart } from './types';
 
@@ -38,9 +39,12 @@ export function planSlotsFromDraft(draft: PlanDraft, idFor: (seed: string) => st
       isRecovery,
     });
   };
-  for (const day of [...draft.strengthDays].sort()) {
-    push(day, 'strength', 'strength', 'plan.strengthSession', false);
-  }
+  // Strength days rotate through the bundles, so a three-day week is not three
+  // identical sessions: A, then legs and core, then B.
+  [...draft.strengthDays].sort().forEach((day, index) => {
+    const bundle = bundleForStrengthDay(index);
+    push(day, 'strength', 'strength', bundle.titleKey, false);
+  });
   for (const day of [...draft.cardioDays].sort()) {
     push(day, 'walk', 'cardio', 'plan.aerobicSession', false);
   }

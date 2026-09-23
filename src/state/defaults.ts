@@ -75,14 +75,20 @@ export function emptyState(preferences: Preferences): AgonState {
  */
 export function defaultCatalogueKeys(plan: PlanSlot[]): string[] {
   const keys = new Set<string>([
-    'show_up',
     'find_your_rhythm',
     'keep_showing_up',
-    'a_little_reset',
     'set_up_next_week',
   ]);
   const mainSlots = plan.filter(isMainSlot);
-  if (mainSlots.some((slot) => slot.kind === 'strength')) keys.add('strength_foundation');
-  if (mainSlots.some((slot) => slot.kind === 'cardio')) keys.add('build_your_engine');
+  const hasStrength = mainSlots.some((slot) => slot.kind === 'strength');
+  const hasCardio = mainSlots.some((slot) => slot.kind === 'cardio');
+  // The week is led by the bundle that matches the plan's emphasis.
+  if (hasStrength) keys.add('strength_workout');
+  if (hasCardio) keys.add('cardio_workout');
+  if (hasCardio) keys.add('build_your_engine');
+  keys.add('show_up');
+  // Two micro-quests by default: one strength-ish, one moving-ish.
+  keys.add('ten_push_ups');
+  keys.add('ten_minute_walk');
   return [...keys];
 }

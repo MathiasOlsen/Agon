@@ -147,8 +147,8 @@ test('a backdated correction updates the affected period', () => {
 
 test('only two supporting quests are rewarded on the same day', () => {
   let state = recompute(makeState(), TEST_NOW).state;
-  state = enableCatalogueEntry(state, 'a_little_reset', true, null, TEST_NOW).state;
-  state = enableCatalogueEntry(state, 'keep_moving', true, 6_000, TEST_NOW).state;
+  state = enableCatalogueEntry(state, 'core_ten', true, null, TEST_NOW).state;
+  state = enableCatalogueEntry(state, 'ten_minute_walk', true, null, TEST_NOW).state;
 
   // A third supporting quest stands in for anything a future version adds.
   const extra: QuestTemplate = {
@@ -192,28 +192,28 @@ test('only two supporting quests are rewarded on the same day', () => {
   };
   state = recompute(state, TEST_NOW).state;
 
-  state = logActivity(
-    state,
-    makeActivityEvent({
-      localDate: TEST_TODAY,
-      kind: 'mobility',
-      measure: 'minutes',
-      quantity: 10,
-      id: 'act:test:mobility',
-    }),
-    TEST_NOW,
-  ).state;
-  state = logActivity(
-    state,
-    makeActivityEvent({
-      localDate: TEST_TODAY,
-      kind: 'movement',
-      measure: 'steps',
-      quantity: 6_500,
-      id: 'act:test:steps',
-    }),
-    TEST_NOW,
-  ).state;
+    state = logActivity(
+      state,
+      makeActivityEvent({
+        localDate: TEST_TODAY,
+        kind: 'strength',
+        measure: 'reps',
+        quantity: 10,
+        id: 'act:test:situps',
+      }),
+      TEST_NOW,
+    ).state;
+    state = logActivity(
+      state,
+      makeActivityEvent({
+        localDate: TEST_TODAY,
+        kind: 'movement',
+        measure: 'minutes',
+        quantity: 10,
+        id: 'act:test:walk',
+      }),
+      TEST_NOW,
+    ).state;
   state = logActivity(
     state,
     makeActivityEvent({
@@ -231,7 +231,7 @@ test('only two supporting quests are rewarded on the same day', () => {
   );
   assert.equal(supportingRewards.length, 2);
 
-  const suppressed = instanceById(state, instanceIdFor('zz_extra', TEST_TODAY));
+    const suppressed = instanceById(state, instanceIdFor('zz_extra', TEST_TODAY));
   assert.equal(suppressed?.status, 'completed', 'it still counts as done');
   assert.equal(isRewardSuppressedForRecognition(state, suppressed!), true);
   assert.equal(
@@ -317,7 +317,17 @@ test('finishing a workout writes the record once and closes the plan entry', () 
   const started = startWorkout(state, {
     scheduledSessionId: scheduledId,
     modality: 'strength',
-    exercises: [{ exerciseId: 'goblet_squat', sets: 3, reps: 10, loadKg: 16 }],
+    exercises: [
+      {
+        exerciseId: 'goblet_squat',
+        sets: 3,
+        reps: 10,
+        durationSec: null,
+        loadKg: 16,
+        tool: 'dumbbell',
+        alternativeExerciseId: 'bodyweight_squat',
+      },
+    ],
     startedAt: TEST_NOW,
   });
   const sessionId = started.state.workoutSessions[0]?.id;
@@ -389,7 +399,7 @@ test('rescheduling keeps the identity and moves the membership', () => {
 test('one activity advances several goals but is stored once', () => {
   let state = recompute(makeState(), TEST_NOW).state;
   state = enableCatalogueEntry(state, 'show_up', true, null, TEST_NOW).state;
-  state = enableCatalogueEntry(state, 'strength_foundation', true, null, TEST_NOW).state;
+  state = enableCatalogueEntry(state, 'strength_workout', true, null, TEST_NOW).state;
   // One finished session, recorded the way the workout flow records it.
   state = logActivity(
     state,
@@ -405,13 +415,13 @@ test('one activity advances several goals but is stored once', () => {
   );
 
   const weekly = instanceById(state, instanceIdFor('show_up', '2026-09-21'));
-  const strength = instanceById(state, instanceIdFor('strength_foundation', '2026-09-21'));
+  const strength = instanceById(state, instanceIdFor('strength_workout', '2026-09-21'));
   assert.equal(weekly?.progress, 1);
   assert.equal(strength?.progress, 1);
   assert.equal(
     rewardTotal(state),
-    200 + 50 + 50,
-    'the daily quest, the daily bonus and the single strength day the week asked for',
+    200 + 50 + 600,
+    'the daily quest, the daily bonus and the weekly bundle the strength day completed',
   );
   assert.equal(
     instanceById(state, instanceIdFor('show_up', '2026-09-21'))?.status,

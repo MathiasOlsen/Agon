@@ -1,7 +1,7 @@
 import { Link, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
-import { modalityLabelKey, starterStrengthSession } from '@/core/content';
+import { bundleForTitleKey, modalityLabelKey } from '@/core/content';
 import { addDays, dayOfWeek, formatLocalDate } from '@/core/dates';
 import type { ActivityEvent, Modality, QuestInstance } from '@/core/types';
 import { useApp } from '@/state/app-provider';
@@ -48,12 +48,19 @@ export default function TodayScreen() {
       instance.startDate === today.today,
   );
 
+  /** A session the person wrote themselves, if they have saved one. */
+  const myTemplate = state.workoutTemplates.find((template) => !template.isStarter);
+
   const startSession = (scheduledSessionId: string | null, modality: Modality) => {
+    const scheduled = state.scheduledSessions.find(
+      (candidate) => candidate.id === scheduledSessionId,
+    );
+    const bundle = scheduled ? bundleForTitleKey(scheduled.titleKey) : undefined;
     const sessionId = store.startWorkout(
       {
         scheduledSessionId,
         modality,
-        exercises: modality === 'strength' ? starterStrengthSession() : [],
+        exercises: bundle ? bundle.exercises.map((exercise) => ({ ...exercise })) : [],
       },
       now,
     );
@@ -77,6 +84,19 @@ export default function TodayScreen() {
       note: '',
     };
     store.logActivity(event, now);
+  };
+
+  const startOwnSession = () => {
+    if (!myTemplate) return;
+    const sessionId = store.startWorkout(
+      {
+        scheduledSessionId: today.openSessions[0]?.id ?? null,
+        modality: myTemplate.modality,
+        exercises: myTemplate.exercises.map((exercise) => ({ ...exercise })),
+      },
+      now,
+    );
+    if (sessionId) router.push(`/session/${sessionId}`);
   };
 
   const moodLabel = t(`mood.${mood.mood}` as 'mood.ready');
@@ -177,6 +197,20 @@ export default function TodayScreen() {
             </Text>
           </Pressable>
         </Link>
+        <Link href="/session/new" asChild>
+          <Pressable accessibilityRole="button" accessibilityLabel={t('session.buildOwn')}>
+            <Text variant="label" tone="primary">
+              {t('session.buildOwn')}
+            </Text>
+          </Pressable>
+        </Link>
+        {myTemplate ? (
+          <Button
+            label={t('session.startOwn')}
+            variant="secondary"
+            onPress={startOwnSession}
+          />
+        ) : null}
       </Card>
 
       {supporting.length > 0 ? (
@@ -186,7 +220,7 @@ export default function TodayScreen() {
             <View key={instance.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ flex: 1, gap: 4 }}>
                 <Text variant="label">
-                  {t(`quest.${instance.catalogueKey}.title` as 'quest.keep_moving.title')}
+                  {t(`quest.${instance.catalogueKey}.title` as 'quest.ten_push_ups.title')}
                 </Text>
                 <Text variant="caption" tone="muted" tabular>
                   {t('unit.of', { done: instance.progress, target: instance.target })}{' '}

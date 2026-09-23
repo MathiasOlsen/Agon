@@ -50,6 +50,8 @@ export type QuestStatus =
 export type Measurement =
   | 'planned_sessions'
   | 'sessions'
+  | 'reps'
+  | 'seconds'
   | 'minutes'
   | 'steps'
   | 'distance_km'
@@ -215,15 +217,30 @@ export type ScheduledSession = {
 export type TemplateExercise = {
   exerciseId: string;
   sets: number;
-  reps: number;
+  /** Repetitions per set, or null when the component is timed. */
+  reps: number | null;
+  /** Seconds per set, for holds and warm-ups. */
+  durationSec: number | null;
   loadKg: number | null;
+  /** What the component needs: nothing, or a tool the person must have. */
+  tool: Tool;
+  /** What to do instead when the tool or the movement is not available. */
+  alternativeExerciseId: string | null;
 };
+
+export type Tool = 'none' | 'dumbbell' | 'barbell' | 'band' | 'machine';
 
 export type WorkoutTemplate = {
   id: string;
   titleKey: string;
+  /** Set for a session the person named themselves; null for starter bundles. */
+  title: string | null;
   modality: Modality;
   exercises: TemplateExercise[];
+  /** Which starter bundle this is, or null for a session the person wrote. */
+  bundleKey: string | null;
+  /** False once the person has edited it into their own session. */
+  isStarter: boolean;
   /** Estimated duration in minutes, used for the day's plan summary. */
   estimatedMinutes: number;
   revision: number;

@@ -7,6 +7,10 @@ import type { PluralKey } from '@/i18n';
  */
 export function unitLabelKey(measure: Measurement): PluralKey {
   switch (measure) {
+    case 'reps':
+      return 'unit.reps';
+    case 'seconds':
+      return 'unit.seconds';
     case 'minutes':
       return 'unit.minutes';
     case 'steps':
@@ -24,12 +28,18 @@ export function unitLabelKey(measure: Measurement): PluralKey {
 /** The unit as a bare noun, for text that already states the target. */
 export type UnitNameKey =
   | 'unit.name.sessions'
+  | 'unit.name.reps'
+  | 'unit.name.seconds'
   | 'unit.name.minutes'
   | 'unit.name.steps'
   | 'unit.name.kilometres';
 
 export function unitNameKey(measure: Measurement): UnitNameKey {
   switch (measure) {
+    case 'reps':
+      return 'unit.name.reps';
+    case 'seconds':
+      return 'unit.name.seconds';
     case 'minutes':
       return 'unit.name.minutes';
     case 'steps':

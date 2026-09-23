@@ -1,3 +1,4 @@
+import { emptyTemplate } from '@/core/content';
 import { localDateOf } from '@/core/dates';
 import {
   acknowledge,
@@ -28,13 +29,13 @@ import type {
   Modality,
   Mood,
   Mutation,
-  PlanSlot,
-  Preferences,
-  TemplateExercise,
-} from '@/core/types';
-import { applyOps, deleteEverything, loadStoredState, replaceEverything } from '@/data/repository';
+    PlanSlot,
+    Preferences,
+    TemplateExercise,
+  } from '@/core/types';
+  import { applyOps, deleteEverything, loadStoredState, replaceEverything } from '@/data/repository';
 
-import { defaultPreferences, emptyState, newId } from './defaults';
+  import { defaultPreferences, emptyState, newId } from './defaults';
 
 /**
  * The one place the app reads and writes.
@@ -210,6 +211,29 @@ export class AgonStore {
 
   logCardio(log: Omit<CardioLog, 'id'> & { id?: string }): void {
     this.mutate((state) => applyLogCardio(state, log));
+  }
+
+  /** Saves a session the person wrote, so they can start it again later. */
+  saveWorkoutTemplate(params: {
+    name: string;
+    modality: Modality;
+    exercises: TemplateExercise[];
+  }): string {
+    const template = emptyTemplate({
+      id: newId('wt'),
+      titleKey: '',
+      title: params.name,
+      modality: params.modality,
+      exercises: params.exercises,
+    });
+    this.mutate((state) => ({
+      state: { ...state, workoutTemplates: [...state.workoutTemplates, template] },
+      ops: [
+        { kind: 'put', table: 'workout_templates', record: { ...template } },
+      ],
+      granted: [],
+    }));
+    return template.id;
   }
 
   completeWorkout(sessionId: string, now: string): MutationOutcome {

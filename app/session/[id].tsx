@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
-import { exerciseById, modalityLabelKey } from '@/core/content';
+import { describeComponent, exerciseById, modalityLabelKey, sessionIsComplete } from '@/core/content';
 import { formatDuration } from '@/core/dates';
 import type { SetLog } from '@/core/types';
 import { useApp } from '@/state/app-provider';
@@ -56,6 +56,20 @@ export default function SessionScreen() {
     () => state.setLogs.filter((log) => log.sessionId === id),
     [state.setLogs, id],
   );
+
+  // A session is strict: every set of every component, or it is not finished.
+  const allSetsDone = useMemo(
+    () => sessionIsComplete(session?.exercises ?? [], setLogs),
+    [session?.exercises, setLogs],
+  );
+  const completionFired = useRef(false);
+
+  useEffect(() => {
+    if (!session || session.status !== 'in_progress' || !allSetsDone) return;
+    if (completionFired.current) return;
+    completionFired.current = true;
+    store.completeWorkout(session.id, new Date().toISOString());
+  }, [allSetsDone, session, store]);
 
   if (!session) {
     return (
@@ -231,26 +245,63 @@ export default function SessionScreen() {
           </Text>
         </Card>
       ) : (
-        session.exercises.map((exercise) => (
-          <Card key={exercise.exerciseId}>
-            <CardHeader
-              title={t(exerciseById(exercise.exerciseId)?.nameKey as 'exercise.goblet_squat')}
-              subtitle={t('unit.sets', { count: exercise.sets })}
-            />
-            {Array.from({ length: exercise.sets }).map((_, setIndex) => {
-              const log = setLogs.find(
-                (candidate) =>
-                  candidate.exerciseId === exercise.exerciseId && candidate.setIndex === setIndex,
-              );
-              return (
-                <SetRow
-                  key={setIndex}
-                  index={setIndex}
-                  log={log}
-                  defaultReps={exercise.reps}
-                  defaultLoadKg={exercise.loadKg}
-                  loadUnit={state.preferences.loadUnit}
-                  onToggle={(reps, loadKg, completed) => {
+          session.exercises.map((exercise, exerciseIndex) => {
+            const amount = describeComponent(exercise);
+            const name = t(
+              (exerciseById(exercise.exerciseId)?.nameKey ?? 'exercise.unknown') as 'exercise.unknown',
+            );
+            const alternative = exercise.alternativeExerciseId
+              ? t(
+                  (exerciseById(exercise.alternativeExerciseId)?.nameKey ??
+                    'exercise.unknown') as 'exercise.unknown',
+                )
+              : null;
+            const hint = exerciseById(exercise.exerciseId)?.hintKey;
+            return (
+            <Card key={`${exercise.exerciseId}-${exerciseIndex}`}>
+              <CardHeader
+                title={name}
+                subtitle={
+                  amount.amount === 'reps' && amount.value !== null
+                    ? `${t('unit.sets', { count: amount.sets })} × ${t('unit.reps', { count: amount.value })}`
+                    : amount.amount === 'seconds' && amount.value !== null
+                      ? `${t('unit.sets', { count: amount.sets })} × ${t('unit.seconds', { count: amount.value })}`
+                      : t('unit.sets', { count: amount.sets })
+                }
+              />
+              {hint ? (
+                <Text variant="caption" tone="muted">
+                  {t(hint as 'exercise.push_up.hint')}
+                </Text>
+              ) : null}
+              {alternative ? (
+                <Text variant="caption" tone="primary">
+                  {t('session.instead', { name: alternative })}
+                </Text>
+              ) : null}
+              {exercise.tool !== 'none' ? (
+                <Text variant="caption" tone="muted">
+                  {t('session.uses', { tool: t(`tool.${exercise.tool}` as 'tool.dumbbell') })}
+                </Text>
+              ) : null}
+              {Array.from({ length: exercise.sets }).map((_, setIndex) => {
+                const log = setLogs.find(
+                  (candidate) =>
+                    candidate.exerciseId === exercise.exerciseId && candidate.setIndex === setIndex,
+                );
+                return (
+                  <SetRow
+                    key={setIndex}
+                    index={setIndex}
+                    log={log}
+                    defaultAmount={amount.value ?? 0}
+                    amountLabel={
+                      amount.amount === 'seconds' ? t('session.hold') : t('session.reps')
+                    }
+                    showLoad={exercise.loadKg !== null || exercise.tool !== 'none'}
+                    defaultLoadKg={exercise.loadKg}
+                    loadUnit={state.preferences.loadUnit}
+                    onToggle={(reps, loadKg, completed) => {
                     store.logSet(
                       {
                         sessionId: session.id,
@@ -264,11 +315,12 @@ export default function SessionScreen() {
                     );
                     if (completed) setRestEndsAt(Date.now() + REST_SECONDS * 1_000);
                   }}
-                />
-              );
-            })}
-          </Card>
-        ))
+                  />
+                );
+              })}
+            </Card>
+            );
+          })
       )}
 
       <Card>
@@ -301,12 +353,24 @@ export default function SessionScreen() {
             {t(exerciseById(nextSet.exercise.exerciseId)?.nameKey as 'exercise.goblet_squat')}
           </Text>
           <Text variant="caption" tone="muted">
-            {t('unit.sets', { count: nextSet.exercise.sets })} · {nextSet.exercise.reps} reps
+            {nextSet.exercise.durationSec !== null
+              ? `${t('unit.sets', { count: nextSet.exercise.sets })} × ${t('unit.seconds', {
+                  count: nextSet.exercise.durationSec,
+                })}`
+              : `${t('unit.sets', { count: nextSet.exercise.sets })} × ${t('unit.reps', {
+                  count: nextSet.exercise.reps ?? 0,
+                })}`}
           </Text>
         </Card>
       ) : null}
 
-      {showShorten ? (
+        {allSetsDone ? null : (
+          <Text variant="caption" tone="muted">
+            {t('session.strict')}
+          </Text>
+        )}
+
+        {showShorten ? (
         <Card>
           <CardHeader title={t('session.shortenedConfirm')} subtitle={t('session.shortenedBody')} />
           <Stepper
@@ -335,11 +399,11 @@ export default function SessionScreen() {
             />
           </View>
         </Card>
-      ) : (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('session.shortened')}
-          onPress={() => setShowShorten(true)}
+        ) : allSetsDone ? null : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('session.shortened')}
+            onPress={() => setShowShorten(true)}
         >
           <Text variant="label" tone="primary">
             {t('session.shortened')}
@@ -347,62 +411,83 @@ export default function SessionScreen() {
         </Pressable>
       )}
 
-      <Button
-        label={t('session.finish')}
-        onPress={() => store.completeWorkout(session.id, new Date().toISOString())}
-      />
+        {allSetsDone ? (
+          <Button
+            label={t('session.finish')}
+            onPress={() => store.completeWorkout(session.id, new Date().toISOString())}
+          />
+        ) : (
+          <Button
+            label={t('session.finishEarly')}
+            variant="secondary"
+            onPress={() => setShowShorten(true)}
+          />
+        )}
     </Screen>
   );
 }
 
-function SetRow({
-  index,
-  log,
-  defaultReps,
-  defaultLoadKg,
-  loadUnit,
-  onToggle,
-}: {
-  index: number;
-  log: SetLog | undefined;
-  defaultReps: number;
-  defaultLoadKg: number | null;
-  loadUnit: 'kg' | 'lb';
-  onToggle: (reps: number, loadKg: number | null, completed: boolean) => void;
-}) {
-  const { theme, t } = useApp();
-  const { tokens } = theme;
-  const [reps, setReps] = useState(log?.reps ?? defaultReps);
-  const [loadKg, setLoadKg] = useState<number | null>(log?.loadKg ?? defaultLoadKg);
-  const completed = log?.completed ?? false;
+  function SetRow({
+    index,
+    log,
+    defaultAmount,
+    amountLabel,
+    showLoad,
+    defaultLoadKg,
+    loadUnit,
+    onToggle,
+  }: {
+    index: number;
+    log: SetLog | undefined;
+    defaultAmount: number;
+    amountLabel: string;
+    showLoad: boolean;
+    defaultLoadKg: number | null;
+    loadUnit: 'kg' | 'lb';
+    onToggle: (reps: number, loadKg: number | null, completed: boolean) => void;
+  }) {
+    const { theme, t } = useApp();
+    const { tokens } = theme;
+    const [amount, setAmount] = useState(log?.reps ?? defaultAmount);
+    const [loadKg, setLoadKg] = useState<number | null>(log?.loadKg ?? defaultLoadKg);
+    const completed = log?.completed ?? false;
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
       <Text variant="label" tone="muted" tabular style={{ width: 24 }}>
         {index + 1}
       </Text>
-      <View style={{ flex: 1, gap: 2 }}>
-        <Text variant="caption" tone="muted">
-          {loadUnit === 'kg' ? t('unit.kilograms') : t('unit.pounds')}
-        </Text>
-        <Stepper
-          label={t('session.kg')}
-          value={loadKg ?? 0}
-          step={1}
-          min={0}
-          max={500}
-          onChange={(value) => setLoadKg(value)}
-          format={(value) => (value === 0 ? t('session.bodyweight') : String(value))}
-        />
-      </View>
-      <View style={{ flex: 1, gap: 2 }}>
-        <Text variant="caption" tone="muted">
-          {t('session.reps')}
-        </Text>
-        <Stepper label={t('session.reps')} value={reps} min={1} max={100} onChange={setReps} />
-      </View>
-      <Pressable
-        onPress={() => onToggle(reps, loadKg, !completed)}
+        {showLoad ? (
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text variant="caption" tone="muted">
+              {loadUnit === 'kg' ? t('unit.kilograms') : t('unit.pounds')}
+            </Text>
+            <Stepper
+              label={t('session.kg')}
+              value={loadKg ?? 0}
+              step={1}
+              min={0}
+              max={500}
+              onChange={(value) => setLoadKg(value)}
+              format={(value) => (value === 0 ? t('session.bodyweight') : String(value))}
+            />
+          </View>
+        ) : null}
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text variant="caption" tone="muted">
+            {amountLabel}
+          </Text>
+          <Stepper
+            label={amountLabel}
+            value={amount}
+            step={amount > 60 ? 10 : 1}
+            min={1}
+            max={600}
+            onChange={setAmount}
+          />
+        </View>
+        <Pressable
+          onPress={() => onToggle(amount, loadKg, !completed)}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: completed }}
         aria-checked={completed}

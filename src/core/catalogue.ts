@@ -1,18 +1,13 @@
 import { rewardForQuest } from './rewards';
-import type {
-  ActivityKind,
-  Measurement,
-  PeriodKind,
-  QuestKind,
-  QuestTemplate,
-} from './types';
+import type { ActivityKind, Measurement, PeriodKind, QuestKind, QuestTemplate } from './types';
 
 /**
- * The quest catalogue.
+ * The quest catalogue, organised by size.
  *
- * Playful names always come with a plain-language objective. Targets are
- * derived from the user's own plan wherever the plan can answer the question;
- * the constants here are the defaults used when it cannot.
+ * Daily micro-quests need no equipment and no planning, so a bad day can still
+ * be a completed day. The daily session is the bundle the plan scheduled.
+ * Weekly quests are the workouts themselves. Monthly and yearly quests reward
+ * consistency and review rather than heroics.
  */
 
 export type CatalogueEntry = {
@@ -25,197 +20,95 @@ export type CatalogueEntry = {
   defaultTarget: number | null;
   accessibleAlternative: Measurement | null;
   isRecovery: boolean;
+  /** Where the movement came from, when this is a bundled session. */
+  bundleKey: string | null;
 };
 
+function entry(
+  key: string,
+  periodKind: PeriodKind,
+  kind: QuestKind,
+  measure: Measurement,
+  activityKinds: ActivityKind[],
+  defaultTarget: number | null,
+  options: Partial<Pick<CatalogueEntry, 'accessibleAlternative' | 'isRecovery' | 'bundleKey'>> = {},
+): CatalogueEntry {
+  return {
+    key,
+    periodKind,
+    kind,
+    measure,
+    activityKinds,
+    defaultTarget,
+    accessibleAlternative: options.accessibleAlternative ?? null,
+    isRecovery: options.isRecovery ?? false,
+    bundleKey: options.bundleKey ?? null,
+  };
+}
+
 export const CATALOGUE: CatalogueEntry[] = [
-  {
-    key: 'build_your_strength',
-    periodKind: 'daily',
-    kind: 'main',
-    measure: 'planned_sessions',
-    activityKinds: ['strength'],
-    defaultTarget: 1,
+  // Daily micro-quests: small, doable right now, nothing required.
+  entry('ten_push_ups', 'daily', 'supporting', 'reps', ['strength'], 10),
+  entry('core_ten', 'daily', 'supporting', 'reps', ['strength'], 10),
+  entry('twenty_squats', 'daily', 'supporting', 'reps', ['strength'], 20),
+  entry('one_minute_plank', 'daily', 'supporting', 'seconds', ['strength'], 60),
+  entry('ten_minute_walk', 'daily', 'supporting', 'minutes', ['movement'], 10),
+  entry('reach_and_breathe', 'daily', 'supporting', 'minutes', ['mobility'], 2),
+
+  // The session the plan scheduled for today.
+  entry('build_your_strength', 'daily', 'main', 'planned_sessions', ['strength'], 1, {
+    bundleKey: 'strength_a',
     accessibleAlternative: 'minutes',
-    isRecovery: false,
-  },
-  {
-    key: 'find_your_pace',
-    periodKind: 'daily',
-    kind: 'main',
-    measure: 'planned_sessions',
-    activityKinds: ['cardio'],
-    defaultTarget: 1,
+  }),
+  entry('find_your_pace', 'daily', 'main', 'planned_sessions', ['cardio'], 1, {
+    bundleKey: 'cardio',
     accessibleAlternative: 'minutes',
-    isRecovery: false,
-  },
-  {
-    key: 'make_it_happen',
-    periodKind: 'daily',
-    kind: 'main',
-    measure: 'minutes',
-    activityKinds: ['strength', 'cardio'],
-    defaultTarget: 15,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'keep_moving',
-    periodKind: 'daily',
-    kind: 'supporting',
-    measure: 'steps',
-    activityKinds: ['movement'],
-    defaultTarget: 6_000,
-    accessibleAlternative: 'minutes',
-    isRecovery: false,
-  },
-  {
-    key: 'a_little_reset',
-    periodKind: 'daily',
-    kind: 'supporting',
-    measure: 'minutes',
-    activityKinds: ['mobility'],
-    defaultTarget: 5,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'respect_the_rest',
-    periodKind: 'daily',
-    kind: 'main',
-    measure: 'checkoff',
-    activityKinds: ['recovery'],
-    defaultTarget: 1,
-    accessibleAlternative: null,
-    isRecovery: true,
-  },
-  {
-    key: 'show_up',
-    periodKind: 'weekly',
-    kind: 'main',
-    measure: 'planned_sessions',
-    activityKinds: ['strength', 'cardio'],
-    defaultTarget: null,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'strength_foundation',
-    periodKind: 'weekly',
-    kind: 'supporting',
-    measure: 'sessions',
-    activityKinds: ['strength'],
-    defaultTarget: null,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'build_your_engine',
-    periodKind: 'weekly',
-    kind: 'supporting',
-    measure: 'minutes',
-    activityKinds: ['cardio'],
-    defaultTarget: 90,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'set_up_next_week',
-    periodKind: 'weekly',
-    kind: 'supporting',
-    measure: 'checkoff',
-    activityKinds: [],
-    defaultTarget: 1,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'find_your_rhythm',
-    periodKind: 'monthly',
-    kind: 'main',
-    measure: 'planned_sessions',
-    activityKinds: ['strength', 'cardio'],
-    defaultTarget: null,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'finish_the_chapter',
-    periodKind: 'monthly',
-    kind: 'supporting',
-    measure: 'checkoff',
-    activityKinds: [],
-    defaultTarget: 1,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'notice_your_progress',
-    periodKind: 'monthly',
-    kind: 'supporting',
-    measure: 'checkoff',
-    activityKinds: [],
-    defaultTarget: 1,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'make_it_fit',
-    periodKind: 'monthly',
-    kind: 'supporting',
-    measure: 'checkoff',
-    activityKinds: [],
-    defaultTarget: 1,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'keep_showing_up',
-    periodKind: 'yearly',
-    kind: 'main',
-    measure: 'planned_sessions',
-    activityKinds: ['strength', 'cardio'],
-    defaultTarget: null,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'your_first_finish_line',
-    periodKind: 'yearly',
-    kind: 'supporting',
-    measure: 'checkoff',
-    activityKinds: [],
-    defaultTarget: 1,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'build_your_foundation',
-    periodKind: 'yearly',
-    kind: 'supporting',
-    measure: 'sessions',
-    activityKinds: ['strength'],
-    defaultTarget: 100,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
-  {
-    key: 'a_year_of_movement',
-    periodKind: 'yearly',
-    kind: 'supporting',
-    measure: 'distance_km',
-    activityKinds: ['cardio', 'movement'],
-    defaultTarget: 100,
-    accessibleAlternative: null,
-    isRecovery: false,
-  },
+  }),
+  entry('make_it_happen', 'daily', 'main', 'minutes', ['strength', 'cardio'], 15),
+  entry('respect_the_rest', 'daily', 'main', 'checkoff', ['recovery'], 1, { isRecovery: true }),
+
+  // Weekly: the workouts.
+  entry('strength_workout', 'weekly', 'main', 'planned_sessions', ['strength'], null, {
+    bundleKey: 'strength_a',
+  }),
+  entry('cardio_workout', 'weekly', 'main', 'planned_sessions', ['cardio'], null, {
+    bundleKey: 'cardio',
+  }),
+  entry('show_up', 'weekly', 'supporting', 'planned_sessions', ['strength', 'cardio'], null),
+  entry('build_your_engine', 'weekly', 'supporting', 'minutes', ['cardio'], 90),
+  entry('set_up_next_week', 'weekly', 'supporting', 'checkoff', [], 1),
+
+  // Monthly: is the plan working?
+  entry('find_your_rhythm', 'monthly', 'main', 'planned_sessions', ['strength', 'cardio'], null),
+  entry('finish_the_chapter', 'monthly', 'supporting', 'checkoff', [], 1),
+  entry('notice_your_progress', 'monthly', 'supporting', 'checkoff', [], 1),
+  entry('make_it_fit', 'monthly', 'supporting', 'checkoff', [], 1),
+
+  // Yearly: what is being built?
+  entry('keep_showing_up', 'yearly', 'main', 'planned_sessions', ['strength', 'cardio'], null),
+  entry('a_year_of_movement', 'yearly', 'supporting', 'distance_km', ['cardio', 'movement'], 300),
+  entry('your_first_finish_line', 'yearly', 'supporting', 'checkoff', [], 1),
+  entry('build_your_foundation', 'yearly', 'supporting', 'checkoff', [], 1),
 ];
 
 export function findCatalogueEntry(key: string): CatalogueEntry | undefined {
-  return CATALOGUE.find((entry) => entry.key === key);
+  return CATALOGUE.find((candidate) => candidate.key === key);
 }
 
 export function templatesForPeriod(periodKind: PeriodKind): CatalogueEntry[] {
-  return CATALOGUE.filter((entry) => entry.periodKind === periodKind);
+  return CATALOGUE.filter((candidate) => candidate.periodKind === periodKind);
+}
+
+/** The daily micro-quests, in the order they are offered. */
+export function microQuestEntries(): CatalogueEntry[] {
+  return CATALOGUE.filter(
+    (candidate) => candidate.periodKind === 'daily' && candidate.kind === 'supporting',
+  );
+}
+
+/** The two bundles a plan can lead with. */
+export function bundleQuestEntries(): CatalogueEntry[] {
+  return CATALOGUE.filter((candidate) => candidate.bundleKey !== null && candidate.periodKind === 'weekly');
 }
 
 /** Builds a stored template from a catalogue entry plus the user's target. */
