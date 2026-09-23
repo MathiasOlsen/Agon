@@ -157,10 +157,17 @@ Use primary for active tabs, progress and primary buttons; onPrimary for their t
 
 ### Quest treatments
 
-- Moss & Oat: fine outlined cards, square stamped markers, segmented bars and sage completed surfaces.
-- Teal & Apricot: softly rounded cards, colored left rails, smooth bars, peach XP chips and teal buttons.
-- Ink & Lilac: stepped pixel corners, flat slate surfaces, lilac actions and mint completion. No neon bloom.
-- Clay & Sky: ticket-like cards with shallow side notches, numbered markers, strong dividers and sky-blue completed surfaces.
+Every surface is drawn on the same grid as the sprites. Cards, chips, buttons,
+inputs and day cells are square; edges are a visible 2 logical pixels; progress
+is a row of blocks rather than a smooth fill; and a raised surface casts a hard
+offset shadow with no blur. Nothing is softly rounded, because a soft corner is
+the one shape the artwork never uses. Themes differ in colour and in the
+decoration they add, never in whether a shape reads as a block.
+
+- Moss & Oat: fine outlined cards, a thin stamped border, block meters and sage completed surfaces.
+- Teal & Apricot: square cards with colored left rails, block meters, peach XP chips and teal buttons.
+- Ink & Lilac: stepped square cards, flat slate surfaces, lilac actions and mint completion. No neon bloom.
+- Clay & Sky: ticket-like square cards with a dashed edge, numbered markers, strong dividers and sky-blue completed surfaces.
 
 Keep information order and interactions identical across themes. Styling must not change what a quest means. Period labels should always be readable words, not inferred from rarity colors.
 

@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 
 import type { Appearance, HairStyle, Outfit, SkinTone } from '@/core/types';
+import { PIXEL } from '@/theme/tokens';
 import { useApp } from '@/state/app-provider';
 
 import { OptionPill } from './controls';
@@ -46,9 +47,9 @@ export function AppearancePicker({
                   style={{
                     width: 24,
                     height: 24,
-                    borderRadius: 6,
+                    borderRadius: PIXEL.cornerSoft,
                     backgroundColor: palette.skin,
-                    borderWidth: 1,
+                    borderWidth: PIXEL.edge,
                     borderColor: palette.skinShade,
                   }}
                 />
@@ -97,9 +98,9 @@ export function AppearancePicker({
                   style={{
                     width: 24,
                     height: 24,
-                    borderRadius: 6,
+                    borderRadius: PIXEL.cornerSoft,
                     backgroundColor: palette.outfit,
-                    borderWidth: 1,
+                    borderWidth: PIXEL.edge,
                     borderColor: palette.outfitShade,
                   }}
                 />

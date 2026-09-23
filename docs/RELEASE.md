@@ -47,8 +47,12 @@ behave.
   useful when a phone is not at hand. Two things differ there, deliberately:
   the local database falls back to browser storage (`src/data/db.web.ts`, same
   all-or-nothing behaviour, no SQLite), and reminders are disabled because a
-  browser tab has no schedule to keep. The handoff defers a browser release, so
-  this is a preview rather than a supported deployment.
+  browser tab has no schedule to keep. A third difference is presentational: the
+  library's web tab bar is a floating pill pinned to the top of the window, which
+  covers the page name, so `app/(tabs)/_layout.web.tsx` draws the bottom
+  navigation itself from the headless tabs and keeps the handoff's order. The
+  handoff defers a browser release, so this is a preview rather than a supported
+  deployment.
 - **Animation.** Moods are static poses. The handoff's suggested loops (idle,
   sleepy, stretch, celebrate, radiant) are not implemented.
 - **Cross-platform purchase.** The single-purchase commitment is a product

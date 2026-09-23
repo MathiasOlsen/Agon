@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 import { bundleForTitleKey, modalityLabelKey } from '@/core/content';
 import { addDays, dayOfWeek, formatLocalDate } from '@/core/dates';
 import type { ActivityEvent, Modality, QuestInstance } from '@/core/types';
+import { PIXEL } from '@/theme/tokens';
 import { useApp } from '@/state/app-provider';
 import {
   dayStates,
@@ -257,7 +258,7 @@ export default function TodayScreen() {
                 style={{
                   width: 34,
                   height: 34,
-                  borderRadius: 17,
+                  borderRadius: PIXEL.corner,
                   alignItems: 'center',
                   justifyContent: 'center',
                   backgroundColor: day.completed
@@ -265,7 +266,7 @@ export default function TodayScreen() {
                     : day.planned
                       ? theme.tokens.progressTrack
                       : 'transparent',
-                  borderWidth: day.planned || day.recovery ? 0 : 1,
+                  borderWidth: day.planned || day.recovery ? 0 : PIXEL.edgeThin,
                   borderColor: theme.tokens.progressTrack,
                 }}
               >

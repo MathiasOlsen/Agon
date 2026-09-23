@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, View, type ViewStyle } from 'react-native';
 
-import { TOUCH } from '@/theme/tokens';
+import { PIXEL, TOUCH } from '@/theme/tokens';
 
 import { useThemeTokens } from '@/state/app-provider';
 
+import { hardShadow } from './pixel';
 import { Text } from './text';
 
 /**
@@ -39,13 +40,13 @@ export function Button({
   const appearance: ViewStyle = (() => {
     switch (variant) {
       case 'secondary':
-        return { backgroundColor: 'transparent', borderWidth: 1, borderColor: tokens.primary };
+        return { backgroundColor: 'transparent', borderWidth: PIXEL.edge, borderColor: tokens.primary };
       case 'ghost':
         return { backgroundColor: 'transparent' };
       case 'danger':
-        return { backgroundColor: tokens.danger };
+        return { backgroundColor: tokens.danger, ...hardShadow(tokens.danger) };
       default:
-        return { backgroundColor: tokens.primary };
+        return { backgroundColor: tokens.primary, ...hardShadow(tokens.primary) };
     }
   })();
 
@@ -75,8 +76,7 @@ export function Button({
           minWidth: TOUCH.minWidth,
           paddingHorizontal: 16,
           paddingVertical: 12,
-          borderRadius: theme.treatment === 'stepped' ? 2 : 12,
-          borderCurve: 'continuous',
+          borderRadius: PIXEL.corner,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',

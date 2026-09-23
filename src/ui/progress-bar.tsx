@@ -1,8 +1,8 @@
 import { View, type ViewStyle } from 'react-native';
 
+import { PIXEL } from '@/theme/tokens';
 import { useApp, useThemeTokens } from '@/state/app-provider';
 
-import { mix } from './color';
 import { Text } from './text';
 
 /**
@@ -14,7 +14,7 @@ export function ProgressBar({
   value,
   max,
   label,
-  height = 10,
+  height = PIXEL.barHeight,
   complete = false,
   style,
 }: {
@@ -29,7 +29,8 @@ export function ProgressBar({
   const { tokens } = theme;
   const safeMax = max > 0 ? max : 1;
   const fraction = complete ? 1 : Math.max(0, Math.min(1, value / safeMax));
-  const radius = theme.treatment === 'stepped' ? 0 : height / 2;
+  const blocks = PIXEL.barBlocks;
+  const filled = complete ? blocks : Math.round(fraction * blocks);
 
   return (
     <View
@@ -38,56 +39,33 @@ export function ProgressBar({
       accessibilityValue={{ min: 0, max: safeMax, now: complete ? safeMax : Math.min(value, safeMax) }}
       style={[{ gap: 6 }, style]}
     >
+      {/* A meter made of blocks, so it reads in the same language as the sprites. */}
       <View
         style={{
-          height,
-          borderRadius: radius,
-          backgroundColor: tokens.progressTrack,
-          overflow: 'hidden',
+          flexDirection: 'row',
+          gap: PIXEL.edgeThin,
+          padding: PIXEL.edgeThin,
+          borderWidth: PIXEL.edge,
+          borderColor: tokens.border,
+          backgroundColor: tokens.surface,
         }}
       >
-        <View
-          style={{
-            width: `${fraction * 100}%`,
-            height: '100%',
-            backgroundColor: complete ? tokens.successText : tokens.primary,
-          }}
-        />
+        {Array.from({ length: blocks }).map((_, index) => (
+          <View
+            key={index}
+            style={{
+              flex: 1,
+              height,
+              backgroundColor:
+                index < filled
+                  ? complete
+                    ? tokens.successText
+                    : tokens.primary
+                  : tokens.progressTrack,
+            }}
+          />
+        ))}
       </View>
-    </View>
-  );
-}
-
-export function SegmentedProgress({
-  value,
-  max,
-  label,
-}: {
-  value: number;
-  max: number;
-  label: string;
-}) {
-  const theme = useThemeTokens();
-  const { tokens } = theme;
-  const segments = Math.max(1, Math.min(max, 12));
-  const filled = Math.round((Math.min(value, max) / (max || 1)) * segments);
-  return (
-    <View
-      accessibilityRole="progressbar"
-      accessibilityLabel={label}
-      style={{ flexDirection: 'row', gap: 3 }}
-    >
-      {Array.from({ length: segments }).map((_, index) => (
-        <View
-          key={index}
-          style={{
-            flex: 1,
-            height: 10,
-            backgroundColor: index < filled ? tokens.primary : tokens.progressTrack,
-            borderRadius: theme.treatment === 'stepped' ? 0 : 2,
-          }}
-        />
-      ))}
     </View>
   );
 }
@@ -103,9 +81,9 @@ export function XpChip({ xp, tone = 'accent' }: { xp: number; tone?: 'accent' | 
         backgroundColor: background,
         paddingHorizontal: 10,
         paddingVertical: 4,
-        borderRadius: theme.treatment === 'stepped' ? 2 : 999,
-        borderWidth: tone === 'success' ? 1 : 0,
-        borderColor: tone === 'success' ? mix(tokens.successText, tokens.surface, 0.6) : 'transparent',
+        borderRadius: PIXEL.corner,
+        borderWidth: PIXEL.edge,
+        borderColor: tone === 'success' ? tokens.successText : tokens.border,
       }}
     >
       <Text variant="label" style={{ color }} tabular>

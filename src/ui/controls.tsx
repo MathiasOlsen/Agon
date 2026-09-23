@@ -1,11 +1,10 @@
 import { useState, type ReactNode } from 'react';
 import { Pressable, Switch, TextInput, View } from 'react-native';
 
-import { TOUCH } from '@/theme/tokens';
+import { PIXEL, TOUCH } from '@/theme/tokens';
 
 import { useThemeTokens } from '@/state/app-provider';
 
-import { mix } from './color';
 import { PixelIcon } from './pixel-sprite';
 import { Text } from './text';
 
@@ -31,9 +30,11 @@ export function SegmentedControl<T extends string>({
       style={{
         flexDirection: 'row',
         backgroundColor: tokens.progressTrack,
-        borderRadius: theme.treatment === 'stepped' ? 2 : 10,
-        padding: 3,
-        gap: 3,
+        borderWidth: PIXEL.edge,
+        borderColor: tokens.border,
+        borderRadius: PIXEL.corner,
+        padding: PIXEL.edgeThin,
+        gap: PIXEL.edgeThin,
       }}
     >
       {options.map((option) => {
@@ -50,7 +51,11 @@ export function SegmentedControl<T extends string>({
               minHeight: 40,
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: theme.treatment === 'stepped' ? 0 : 8,
+              borderRadius: PIXEL.corner,
+              // The fill alone is a 1.3:1 difference, so the open period also
+              // gets an edge: two cues, and neither of them is colour alone.
+              borderWidth: selected ? PIXEL.edge : 0,
+              borderColor: tokens.primary,
               backgroundColor: selected ? tokens.surface : 'transparent',
             }}
           >
@@ -96,9 +101,9 @@ export function Stepper({
           minWidth: TOUCH.minHeight,
           alignItems: 'center',
           justifyContent: 'center',
-          borderWidth: 1,
+          borderWidth: PIXEL.edge,
           borderColor: tokens.border,
-          borderRadius: theme.treatment === 'stepped' ? 2 : 10,
+          borderRadius: PIXEL.corner,
         }}
       >
         <PixelIcon name="minus" size={14} color={tokens.text} />
@@ -118,9 +123,9 @@ export function Stepper({
           minWidth: TOUCH.minHeight,
           alignItems: 'center',
           justifyContent: 'center',
-          borderWidth: 1,
+          borderWidth: PIXEL.edge,
           borderColor: tokens.border,
-          borderRadius: theme.treatment === 'stepped' ? 2 : 10,
+          borderRadius: PIXEL.corner,
         }}
       >
         <PixelIcon name="plus" size={14} color={tokens.text} />
@@ -190,10 +195,12 @@ export function OptionPill({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        borderWidth: selected ? 2 : 1,
-        borderColor: selected ? tokens.primary : mix(tokens.border, tokens.surface, 0.5),
+        // Selection is a thicker edge as well as a different colour, so it does
+        // not rest on the colour difference alone.
+        borderWidth: selected ? PIXEL.edge : PIXEL.edgeThin,
+        borderColor: selected ? tokens.primary : tokens.border,
         backgroundColor: tokens.surface,
-        borderRadius: theme.treatment === 'stepped' ? 2 : 12,
+        borderRadius: PIXEL.corner,
       }}
     >
       {children}
@@ -243,9 +250,9 @@ export function Field({
         accessibilityLabel={label}
         style={{
           minHeight: TOUCH.minHeight,
-          borderWidth: focused ? 2 : 1,
-          borderColor: focused ? tokens.primary : tokens.border,
-          borderRadius: theme.treatment === 'stepped' ? 2 : 10,
+          borderWidth: focused ? PIXEL.edge : PIXEL.edgeThin,
+          borderColor: focused ? tokens.focus : tokens.border,
+          borderRadius: PIXEL.corner,
           paddingHorizontal: 12,
           paddingVertical: 10,
           color: tokens.text,

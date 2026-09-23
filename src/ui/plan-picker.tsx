@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 
 import { WEEKDAYS, type PlanDraft } from '@/core/plan';
+import { PIXEL } from '@/theme/tokens';
 import { useApp } from '@/state/app-provider';
 import { PixelIcon } from '@/ui/pixel-sprite';
 import { Card } from '@/ui/card';
@@ -79,14 +80,14 @@ export function PlanPicker({
                   minHeight: 44,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  borderWidth: selected ? 2 : 1,
+                  borderWidth: selected ? PIXEL.edge : PIXEL.edgeThin,
                   borderColor: selected ? tokens.primary : tokens.progressTrack,
                   backgroundColor: selected
                     ? row.tone === 'accent'
                       ? tokens.successSurface
                       : tokens.progressTrack
                     : 'transparent',
-                  borderRadius: theme.treatment === 'stepped' ? 2 : 8,
+                  borderRadius: PIXEL.corner,
                 }}
               >
                 {selected ? (

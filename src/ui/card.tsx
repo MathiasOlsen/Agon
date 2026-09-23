@@ -1,11 +1,10 @@
 import type { ReactNode } from 'react';
 import { View, type ViewStyle } from 'react-native';
 
-import { CARD_PADDING } from '@/theme/tokens';
+import { CARD_PADDING, PIXEL } from '@/theme/tokens';
 
 import { useThemeTokens } from '@/state/app-provider';
 
-import { mix } from './color';
 import { Text } from './text';
 
 /**
@@ -43,29 +42,36 @@ export function Card({
       case 'outline':
         return {
           ...base,
-          borderWidth: 1,
+          borderWidth: PIXEL.edge,
           borderColor: tokens.border,
-          borderRadius: 6,
+          borderRadius: PIXEL.corner,
         };
       case 'rail':
         return {
           ...base,
-          borderRadius: 16,
-          borderCurve: 'continuous',
-          borderLeftWidth: accentRail === false ? 0 : 4,
+          borderWidth: PIXEL.edge,
+          borderColor: tokens.border,
+          borderRadius: PIXEL.corner,
+          borderLeftWidth: accentRail === false ? PIXEL.edge : 6,
           borderLeftColor: tokens.primary,
         };
       case 'stepped':
-        return { ...base, borderRadius: 2 };
+        return {
+          ...base,
+          borderWidth: PIXEL.edge,
+          borderColor: tokens.border,
+          borderRadius: PIXEL.corner,
+        };
       case 'ticket':
         return {
           ...base,
-          borderRadius: 8,
-          borderWidth: 1,
-          borderColor: mix(tokens.border, tokens.surface, 0.5),
+          borderRadius: PIXEL.corner,
+          borderWidth: PIXEL.edge,
+          borderColor: tokens.border,
+          borderStyle: 'dashed',
         };
       default:
-        return { ...base, borderRadius: 12 };
+        return { ...base, borderRadius: PIXEL.corner };
     }
   })();
 

@@ -30,8 +30,6 @@ export type Theme = {
   nameKey: string;
   isDark: boolean;
   treatment: QuestTreatment;
-  /** Corner radius used by cards in this theme. */
-  cardRadius: number;
   tokens: ThemeTokens;
 };
 
@@ -41,7 +39,6 @@ export const THEMES: Record<ThemeId, Theme> = {
     nameKey: 'theme.moss',
     isDark: false,
     treatment: 'outline',
-    cardRadius: 6,
     tokens: {
       background: '#F5F1E7',
       surface: '#FFFCF5',
@@ -64,7 +61,6 @@ export const THEMES: Record<ThemeId, Theme> = {
     nameKey: 'theme.teal',
     isDark: false,
     treatment: 'rail',
-    cardRadius: 16,
     tokens: {
       background: '#F7F7F2',
       surface: '#FFFFFF',
@@ -87,7 +83,6 @@ export const THEMES: Record<ThemeId, Theme> = {
     nameKey: 'theme.ink',
     isDark: true,
     treatment: 'stepped',
-    cardRadius: 2,
     tokens: {
       background: '#20232D',
       surface: '#303541',
@@ -110,7 +105,6 @@ export const THEMES: Record<ThemeId, Theme> = {
     nameKey: 'theme.clay',
     isDark: false,
     treatment: 'ticket',
-    cardRadius: 8,
     tokens: {
       background: '#F7F2EC',
       surface: '#FFFCF8',
@@ -158,6 +152,28 @@ export const TYPE = {
   body: 16,
   label: 14,
   caption: 12,
+} as const;
+
+/**
+ * Pixel geometry.
+ *
+ * The companion, the interface glyphs and the app mark are pixel art, so the
+ * surfaces around them are drawn the same way: square corners, visible edges of
+ * two logical pixels, and hard offset shadows rather than soft ones. Nothing here
+ * changes a colour token; it changes how the shapes are built.
+ */
+export const PIXEL = {
+  /** Square by default. A one-step corner only where a shape needs to read round. */
+  corner: 0,
+  cornerSoft: 2,
+  edge: 2,
+  edgeThin: 1,
+  /** Offset of the hard shadow under buttons and chips. */
+  offset: 3,
+  /** Height of a progress block row. */
+  barHeight: 12,
+  /** How many blocks a progress meter is divided into. */
+  barBlocks: 10,
 } as const;
 
 /** Used by every interactive element, so nothing falls below the target size. */

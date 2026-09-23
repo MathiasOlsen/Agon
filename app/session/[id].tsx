@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 import { describeComponent, exerciseById, modalityLabelKey, sessionIsComplete } from '@/core/content';
 import { formatDuration } from '@/core/dates';
 import type { SetLog } from '@/core/types';
+import { PIXEL } from '@/theme/tokens';
 import { useApp } from '@/state/app-provider';
 import { usePendingCelebration, usePeriodCounters } from '@/state/hooks';
 import { Button } from '@/ui/button';
@@ -499,7 +500,7 @@ export default function SessionScreen() {
           justifyContent: 'center',
           borderWidth: 2,
           borderColor: completed ? tokens.primary : tokens.progressTrack,
-          borderRadius: 10,
+          borderRadius: PIXEL.corner,
         }}
       >
         {completed ? <PixelIcon name="check" size={16} color={tokens.primary} /> : null}
